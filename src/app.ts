@@ -636,7 +636,7 @@ export class App {
       <div class="message-bubble ${msg.isError ? 'error-bubble' : ''}" data-idiom="${msg.idiom}">
         ${msg.idiom}
       </div>
-      ${msg.isUser ? `<div class="message-time">${timeStr}</div>` : ''}
+      ${msg.isUser && !msg.isError ? `<div class="message-time">${timeStr}</div>` : ''}
       ${isFirst && !msg.isUser ? `
         <div class="message-hint">点击查看详情 · 长按查看候选</div>
       ` : ''}

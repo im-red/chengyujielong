@@ -30,7 +30,7 @@ test.describe('Error Message Time Cost', () => {
         console.log('[Test] ✓ Timer did not reset on error');
     });
 
-    test.skip('should not show time cost for error messages', async ({ page }) => {
+    test('should not show time cost for error messages', async ({ page }) => {
         await page.click('.mode-card:has-text("无尽模式")');
         await page.waitForSelector('#idiom-input');
 
@@ -49,11 +49,14 @@ test.describe('Error Message Time Cost', () => {
         console.log('[Test] ✓ Error message does not show time cost');
     });
 
-    test.skip('should not show old error time cost when submitting new correct idiom', async ({ page }) => {
+    test('should not show old error time cost when submitting new correct idiom', async ({ page }) => {
         await page.click('.mode-card:has-text("无尽模式")');
         await page.waitForSelector('#idiom-input');
 
         await page.waitForSelector('.computer-message');
+
+        const firstMessage = await page.locator('.computer-message .message-bubble').first().textContent();
+        console.log('[Test] First computer message:', firstMessage);
 
         await page.fill('#idiom-input', '错误成语');
         await page.click('#submit-btn');
@@ -66,7 +69,24 @@ test.describe('Error Message Time Cost', () => {
 
         await page.waitForTimeout(500);
 
-        await page.fill('#idiom-input', '一心一意');
+        const validResponse = await page.evaluate((idiom) => {
+            try {
+                // @ts-ignore
+                const lib = window.idiomLib;
+                if (lib && typeof lib.getUnusedCandidateList === 'function') {
+                    const candidates = lib.getUnusedCandidateList(idiom);
+                    return candidates && candidates.length > 0 ? candidates[0] : null;
+                }
+            } catch (e) {
+                console.error('Error getting candidates:', e);
+            }
+            return null;
+        }, firstMessage?.trim() || '');
+
+        const testIdiom = validResponse || '一心一意';
+        console.log('[Test] Submitting valid idiom:', testIdiom);
+
+        await page.fill('#idiom-input', testIdiom);
         await page.click('#submit-btn');
         await page.waitForTimeout(100);
 
@@ -103,9 +123,14 @@ test.describe('Error Message Time Cost', () => {
         console.log('[Test] ✓ Correct idiom time cost does not include error time');
     });
 
-    test.skip('should reset timer only on correct submission', async ({ page }) => {
+    test('should reset timer only on correct submission', async ({ page }) => {
         await page.click('.mode-card:has-text("无尽模式")');
         await page.waitForSelector('#idiom-input');
+
+        await page.waitForSelector('.computer-message');
+
+        const firstMessage = await page.locator('.computer-message .message-bubble').first().textContent();
+        console.log('[Test] First computer message:', firstMessage);
 
         await page.waitForTimeout(1000);
 
@@ -119,7 +144,24 @@ test.describe('Error Message Time Cost', () => {
 
         await page.waitForTimeout(500);
 
-        await page.fill('#idiom-input', '一心一意');
+        const validResponse = await page.evaluate((idiom) => {
+            try {
+                // @ts-ignore
+                const lib = window.idiomLib;
+                if (lib && typeof lib.getUnusedCandidateList === 'function') {
+                    const candidates = lib.getUnusedCandidateList(idiom);
+                    return candidates && candidates.length > 0 ? candidates[0] : null;
+                }
+            } catch (e) {
+                console.error('Error getting candidates:', e);
+            }
+            return null;
+        }, firstMessage?.trim() || '');
+
+        const testIdiom = validResponse || '一心一意';
+        console.log('[Test] Submitting valid idiom:', testIdiom);
+
+        await page.fill('#idiom-input', testIdiom);
         await page.click('#submit-btn');
         await page.waitForTimeout(100);
 
@@ -133,9 +175,14 @@ test.describe('Error Message Time Cost', () => {
         console.log('[Test] ✓ Timer reset on correct submission');
     });
 
-    test.skip('should show time cost for correct submissions after errors', async ({ page }) => {
+    test('should show time cost for correct submissions after errors', async ({ page }) => {
         await page.click('.mode-card:has-text("无尽模式")');
         await page.waitForSelector('#idiom-input');
+
+        await page.waitForSelector('.computer-message');
+
+        const firstMessage = await page.locator('.computer-message .message-bubble').first().textContent();
+        console.log('[Test] First computer message:', firstMessage);
 
         await page.fill('#idiom-input', '错误1');
         await page.click('#submit-btn');
@@ -145,7 +192,24 @@ test.describe('Error Message Time Cost', () => {
         await page.click('#submit-btn');
         await page.waitForTimeout(100);
 
-        await page.fill('#idiom-input', '一心一意');
+        const validResponse = await page.evaluate((idiom) => {
+            try {
+                // @ts-ignore
+                const lib = window.idiomLib;
+                if (lib && typeof lib.getUnusedCandidateList === 'function') {
+                    const candidates = lib.getUnusedCandidateList(idiom);
+                    return candidates && candidates.length > 0 ? candidates[0] : null;
+                }
+            } catch (e) {
+                console.error('Error getting candidates:', e);
+            }
+            return null;
+        }, firstMessage?.trim() || '');
+
+        const testIdiom = validResponse || '一心一意';
+        console.log('[Test] Submitting valid idiom:', testIdiom);
+
+        await page.fill('#idiom-input', testIdiom);
         await page.click('#submit-btn');
         await page.waitForTimeout(100);
 

@@ -81,29 +81,24 @@ test.describe('Endless Mode - Wrong Idiom Handling', () => {
         console.log('[Test] ✓ Game still active');
     });
 
-    test('should display time cost for wrong submissions', async ({ page }) => {
-        console.log('[Test] Testing time cost display');
+    test('should NOT display time cost for wrong submissions', async ({ page }) => {
+        console.log('[Test] Testing time cost is NOT displayed for wrong submissions');
 
         await startEndlessMode(page);
 
-        // Wait a bit before submitting
         await page.waitForTimeout(1000);
 
-        // Submit wrong idiom
         await submitIdiom(page, '错误成语');
 
-        // Check that time cost is displayed
         const userMessages = page.locator('.user-message');
         const lastUserMessage = userMessages.last();
+        const errorBubble = lastUserMessage.locator('.error-bubble');
+        await expect(errorBubble).toBeVisible();
+        console.log('[Test] ✓ Error bubble is visible');
+
         const timeDisplay = lastUserMessage.locator('.message-time');
-        await expect(timeDisplay).toBeVisible();
-
-        const timeText = await timeDisplay.textContent();
-        console.log('[Test] Time cost displayed:', timeText);
-
-        // Time should be displayed in correct format
-        expect(timeText).toMatch(/\d+\.\d+s|\d+ms/);
-        console.log('[Test] ✓ Time cost displayed correctly');
+        await expect(timeDisplay).not.toBeVisible();
+        console.log('[Test] ✓ Time cost is NOT displayed for wrong submission');
     });
 
     test.skip('should allow give up button to trigger computer turn', async ({ page }) => {

@@ -10,12 +10,9 @@ test.describe('Time Cost After Errors', () => {
         await page.click('.mode-card:has-text("无尽模式")');
         await page.waitForSelector('#idiom-input');
 
-        await page.fill('#idiom-input', '心想事成');
-        await page.click('#submit-btn');
-        await page.waitForTimeout(600);
-
         await page.waitForSelector('.computer-message');
-        console.log('[Test] ✓ Robot responded');
+        const firstMessage = await page.locator('.computer-message .message-bubble').first().textContent();
+        console.log('[Test] First computer message:', firstMessage);
 
         await page.waitForTimeout(1000);
 
@@ -46,7 +43,24 @@ test.describe('Time Cost After Errors', () => {
 
         await page.waitForTimeout(1000);
 
-        await page.fill('#idiom-input', '一心一意');
+        const validResponse = await page.evaluate((idiom) => {
+            try {
+                // @ts-ignore
+                const lib = window.idiomLib;
+                if (lib && typeof lib.getUnusedCandidateList === 'function') {
+                    const candidates = lib.getUnusedCandidateList(idiom);
+                    return candidates && candidates.length > 0 ? candidates[0] : null;
+                }
+            } catch (e) {
+                console.error('Error getting candidates:', e);
+            }
+            return null;
+        }, firstMessage?.trim() || '');
+
+        const testIdiom = validResponse || '一心一意';
+        console.log('[Test] Submitting valid idiom:', testIdiom);
+
+        await page.fill('#idiom-input', testIdiom);
         await page.click('#submit-btn');
         await page.waitForTimeout(600);
 
@@ -55,18 +69,8 @@ test.describe('Time Cost After Errors', () => {
         const hasError = await lastUserMessage.locator('.error-bubble').count() > 0;
 
         if (hasError) {
-            console.log('[Test] ⚠ Idiom was rejected, trying another one');
-            await page.fill('#idiom-input', '心想事成');
-            await page.click('#submit-btn');
-            await page.waitForTimeout(600);
-
-            const lastUserMessage2 = userMessages.last();
-            const hasError2 = await lastUserMessage2.locator('.error-bubble').count() > 0;
-
-            if (hasError2) {
-                console.log('[Test] ⚠ Still rejected, skipping test');
-                return;
-            }
+            console.log('[Test] ⚠ Idiom was rejected, skipping test');
+            return;
         }
 
         console.log('[Test] ✓ Correct idiom submitted successfully');
