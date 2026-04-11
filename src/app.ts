@@ -638,7 +638,7 @@ export class App {
       </div>
       ${msg.isUser ? `<div class="message-time">${timeStr}</div>` : ''}
       ${isFirst && !msg.isUser ? `
-        <div class="message-hint">点击查看详情 · 双击查看候选</div>
+        <div class="message-hint">点击查看详情 · 长按查看候选</div>
       ` : ''}
     `;
 
@@ -811,114 +811,63 @@ export class App {
   }
 
   private attachMessageBubbleListeners(bubble: HTMLElement) {
-    let lastTapTime = 0;
-    let tapCount = 0;
-    let tapTimer: number | null = null;
+    let longPressTimer: number | null = null;
+    let isLongPress = false;
+    const LONG_PRESS_DURATION = 500;
 
-    // Prevent focus stealing on message bubbles
     bubble.addEventListener('mousedown', (e) => {
       e.preventDefault();
     });
 
     bubble.addEventListener('touchstart', (e) => {
       e.preventDefault();
+      isLongPress = false;
+      longPressTimer = window.setTimeout(() => {
+        isLongPress = true;
+        const idiom = bubble.dataset.idiom;
+        if (idiom) {
+          this.showCandidatesModal(idiom);
+        }
+      }, LONG_PRESS_DURATION);
     });
 
     bubble.addEventListener('touchend', (e) => {
       e.preventDefault();
       e.stopPropagation();
 
-      const now = Date.now();
-      const timeSinceLastTap = now - lastTapTime;
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
 
-      // If tapped within 300ms, it's a double tap
-      if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
-        // Double tap detected
-        if (tapTimer) {
-          clearTimeout(tapTimer);
-          tapTimer = null;
-        }
-        tapCount = 0;
-        lastTapTime = 0;
-
-        // Hide detail modal if it was opened by the first tap
-        const detailModal = document.getElementById('detail-modal');
-        if (detailModal) detailModal.classList.remove('show');
-
-        const idiom = bubble.dataset.idiom;
-        if (idiom) {
-          this.showCandidatesModal(idiom);
-        }
-      } else {
-        // First tap or tap after timeout
-        tapCount = 1;
-        lastTapTime = now;
-
-        // Clear any existing timer
-        if (tapTimer) {
-          clearTimeout(tapTimer);
-        }
-
-        // Show detail modal immediately for instant feedback
+      if (!isLongPress) {
         const idiom = bubble.dataset.idiom;
         if (idiom) {
           this.showDetailModal(idiom);
         }
-
-        // Set timer to reset tap count if no second tap occurs
-        tapTimer = window.setTimeout(() => {
-          tapCount = 0;
-          lastTapTime = 0;
-          tapTimer = null;
-        }, 300);
       }
     });
 
-    // Desktop: click and double-click events
-    let lastClickTime = 0;
-    let clickTimer: number | null = null;
+    bubble.addEventListener('touchmove', () => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+      isLongPress = false;
+    });
+
+    bubble.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      const idiom = bubble.dataset.idiom;
+      if (idiom) {
+        this.showCandidatesModal(idiom);
+      }
+    });
 
     bubble.addEventListener('click', (e) => {
-      const now = Date.now();
-      const timeSinceLastClick = now - lastClickTime;
-
-      // If clicked within 300ms, it's a double click
-      if (timeSinceLastClick < 300 && timeSinceLastClick > 0) {
-        // Double click detected
-        if (clickTimer) {
-          clearTimeout(clickTimer);
-          clickTimer = null;
-        }
-        lastClickTime = 0;
-
-        // Hide detail modal if it was opened by the first click
-        const detailModal = document.getElementById('detail-modal');
-        if (detailModal) detailModal.classList.remove('show');
-
-        const idiom = bubble.dataset.idiom;
-        if (idiom) {
-          this.showCandidatesModal(idiom);
-        }
-      } else {
-        // First click
-        lastClickTime = now;
-
-        // Clear any existing timer
-        if (clickTimer) {
-          clearTimeout(clickTimer);
-        }
-
-        // Show detail modal immediately for instant feedback
-        const idiom = bubble.dataset.idiom;
-        if (idiom) {
-          this.showDetailModal(idiom);
-        }
-
-        // Set timer to reset click count if no second click occurs
-        clickTimer = window.setTimeout(() => {
-          lastClickTime = 0;
-          clickTimer = null;
-        }, 300);
+      const idiom = bubble.dataset.idiom;
+      if (idiom) {
+        this.showDetailModal(idiom);
       }
     });
   }
