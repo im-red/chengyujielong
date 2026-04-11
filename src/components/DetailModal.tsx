@@ -14,6 +14,9 @@ function DetailModal({ idiom, onClose }: DetailModalProps) {
 
     const handleBackdropClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {
         if (e.target === modalRef.current) {
+            e.preventDefault();
+            const input = document.getElementById('idiom-input') as HTMLInputElement;
+            if (input) input.focus();
             onClose();
         }
     }, [onClose]);
@@ -43,15 +46,6 @@ function DetailModal({ idiom, onClose }: DetailModalProps) {
         }
     }, [isOpen, handleKeyDown]);
 
-    useEffect(() => {
-        if (!isOpen) {
-            const input = document.getElementById('idiom-input') as HTMLInputElement;
-            if (input) {
-                input.focus();
-            }
-        }
-    }, [isOpen]);
-
     return (
         <div
             id="detail-modal"
@@ -63,7 +57,25 @@ function DetailModal({ idiom, onClose }: DetailModalProps) {
             onTouchStart={handleTouchStart}
         >
             <div className="modal-content">
-                <button className="close-modal" onClick={onClose}>&times;</button>
+                <button
+                    type="button"
+                    className="close-modal"
+                    onClick={() => {
+                        const input = document.getElementById('idiom-input') as HTMLInputElement;
+                        if (input) input.focus();
+                        onClose();
+                    }}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onTouchStart={(e) => e.preventDefault()}
+                    onTouchEnd={(e) => {
+                        e.preventDefault();
+                        const input = document.getElementById('idiom-input') as HTMLInputElement;
+                        if (input) input.focus();
+                        onClose();
+                    }}
+                >
+                    &times;
+                </button>
                 {idiom && (
                     <>
                         <h2>{idiom}</h2>

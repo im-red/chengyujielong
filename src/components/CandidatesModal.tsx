@@ -24,6 +24,9 @@ function CandidatesModal({ idiom, onClose, onShowDetail }: CandidatesModalProps)
 
     const handleBackdropClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {
         if (e.target === modalRef.current) {
+            e.preventDefault();
+            const input = document.getElementById('idiom-input') as HTMLInputElement;
+            if (input) input.focus();
             onClose();
         }
     }, [onClose]);
@@ -54,20 +57,13 @@ function CandidatesModal({ idiom, onClose, onShowDetail }: CandidatesModalProps)
         }
     }, [isOpen, handleKeyDown]);
 
-    useEffect(() => {
-        if (!isOpen) {
-            const input = document.getElementById('idiom-input') as HTMLInputElement;
-            if (input) {
-                input.focus();
-            }
-        }
-    }, [isOpen]);
-
     const handleStatClick = (type: string) => {
         setSelectedType(type);
     };
 
     const handleCandidateClick = (candidateIdiom: string) => {
+        const input = document.getElementById('idiom-input') as HTMLInputElement;
+        if (input) input.focus();
         onClose();
         setTimeout(() => onShowDetail(candidateIdiom), 300);
     };
@@ -98,7 +94,25 @@ function CandidatesModal({ idiom, onClose, onShowDetail }: CandidatesModalProps)
             onTouchStart={handleTouchStart}
         >
             <div className="modal-content">
-                <button className="close-modal" onClick={onClose}>&times;</button>
+                <button
+                    type="button"
+                    className="close-modal"
+                    onClick={() => {
+                        const input = document.getElementById('idiom-input') as HTMLInputElement;
+                        if (input) input.focus();
+                        onClose();
+                    }}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onTouchStart={(e) => e.preventDefault()}
+                    onTouchEnd={(e) => {
+                        e.preventDefault();
+                        const input = document.getElementById('idiom-input') as HTMLInputElement;
+                        if (input) input.focus();
+                        onClose();
+                    }}
+                >
+                    &times;
+                </button>
                 {idiom && (
                     <>
                         <h2>候选成语统计</h2>
@@ -151,7 +165,6 @@ function CandidatesModal({ idiom, onClose, onShowDetail }: CandidatesModalProps)
                                                         key={c}
                                                         className={`candidate-item ${isThisUsed ? 'used-item' : ''}`}
                                                         onMouseDown={(e) => e.preventDefault()}
-                                                        onTouchStart={(e) => e.preventDefault()}
                                                         onClick={() => handleCandidateClick(c)}
                                                     >
                                                         {c}

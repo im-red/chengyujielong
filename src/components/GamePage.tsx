@@ -72,7 +72,9 @@ function GamePage({
 
     useEffect(() => {
         if (session.isActive && inputRef.current && !isSubmitting) {
-            inputRef.current.focus();
+            if (document.activeElement !== inputRef.current) {
+                inputRef.current.focus();
+            }
         }
     }, [session.isActive, session.messages.length, isSubmitting]);
 
@@ -177,14 +179,30 @@ function GamePage({
                             placeholder="请输入成语接龙..."
                             autoComplete="off"
                             value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            disabled={isSubmitting}
+                            onChange={(e) => {
+                                if (!isSubmitting) setInput(e.target.value);
+                            }}
+                            onKeyDown={(e) => {
+                                if (isSubmitting) {
+                                    e.preventDefault();
+                                    return;
+                                }
+                                handleKeyDown(e);
+                            }}
                         />
                         <button
                             className="btn btn-primary"
                             id="submit-btn"
-                            onClick={handleSubmit}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleSubmit();
+                            }}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onTouchStart={(e) => e.preventDefault()}
+                            onTouchEnd={(e) => {
+                                e.preventDefault();
+                                handleSubmit();
+                            }}
                             disabled={isSubmitting || !input.trim()}
                         >
                             发送
@@ -193,7 +211,16 @@ function GamePage({
                             <button
                                 className="btn btn-secondary"
                                 id="giveup-btn"
-                                onClick={handleGiveUp}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    handleGiveUp();
+                                }}
+                                onMouseDown={(e) => e.preventDefault()}
+                                onTouchStart={(e) => e.preventDefault()}
+                                onTouchEnd={(e) => {
+                                    e.preventDefault();
+                                    handleGiveUp();
+                                }}
                                 disabled={isSubmitting}
                             >
                                 放弃
