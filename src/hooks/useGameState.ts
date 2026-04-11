@@ -18,6 +18,21 @@ function getErrorMessage(type: RecordType): string {
     }
 }
 
+function calculateEndlessScore(timeCostMs: number): number {
+    const timeCostSeconds = timeCostMs / 1000;
+    if (timeCostSeconds <= 10) {
+        return 10;
+    } else if (timeCostSeconds <= 20) {
+        return 9;
+    } else if (timeCostSeconds <= 30) {
+        return 8;
+    } else if (timeCostSeconds <= 60) {
+        return 7;
+    } else {
+        return 5;
+    }
+}
+
 export interface GameState {
     currentSession: GameSession | null;
     sessions: GameSession[];
@@ -246,10 +261,14 @@ export function useGameState(): [GameState, GameActions] {
             timeCost
         };
 
+        const scoreToAdd = currentSession.mode === GameMode.Endless
+            ? calculateEndlessScore(timeCost)
+            : 10;
+
         let updatedSession = {
             ...currentSession,
             messages: [...currentSession.messages, message],
-            score: currentSession.score + 10
+            score: currentSession.score + scoreToAdd
         };
 
         idiomLib.markUsed(input);
@@ -324,9 +343,15 @@ export function useGameState(): [GameState, GameActions] {
         }
 
         if (currentSession.mode === GameMode.Endless) {
+            const updatedSession = {
+                ...currentSession,
+                score: currentSession.score - 10
+            };
+            setCurrentSession(updatedSession);
+            saveCurrentSession(updatedSession);
             triggerComputerTurn();
         }
-    }, [currentSession, triggerComputerTurn]);
+    }, [currentSession, triggerComputerTurn, saveCurrentSession]);
 
     const deleteSession = useCallback((sessionId: string) => {
         setSessions(prev => prev.filter(s => s.id !== sessionId));
