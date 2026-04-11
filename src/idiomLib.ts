@@ -6,9 +6,19 @@ class IdiomLib {
     private candidateList: Map<string, string[]> = new Map();
     private usedCandidateList: Map<string, string[]> = new Map();
     private unusedCandidateList: Map<string, string[]> = new Map();
+    private testMode: boolean = false;
+    private testSequence: string[] = [];
+    private testSequenceIndex: number = 0;
 
     constructor() {
         this.loadIdioms();
+    }
+
+    setTestMode(enabled: boolean, sequence?: string[]) {
+        this.testMode = enabled;
+        this.testSequence = sequence || [];
+        this.testSequenceIndex = 0;
+        console.info('[IdiomLib] Test mode:', enabled, 'sequence:', sequence);
     }
 
     private translatePinyin(pinyin: string): string {
@@ -39,7 +49,6 @@ class IdiomLib {
             this.candidateList.get(firstPinyin)!.push(item.word);
         });
 
-        // Deep copy the candidate list arrays to avoid shared references
         this.unusedCandidateList = new Map();
         this.candidateList.forEach((value, key) => {
             this.unusedCandidateList.set(key, [...value]);
@@ -49,11 +58,11 @@ class IdiomLib {
 
     reset() {
         this.usedCandidateList.clear();
-        // Deep copy the candidate list arrays to avoid shared references
         this.unusedCandidateList = new Map();
         this.candidateList.forEach((value, key) => {
             this.unusedCandidateList.set(key, [...value]);
         });
+        this.testSequenceIndex = 0;
     }
 
     appendIdiom(history: string[], next: string): RecordType {
@@ -84,6 +93,15 @@ class IdiomLib {
     }
 
     pickNext(history: string[]): string | null {
+        if (this.testMode && this.testSequence.length > 0) {
+            if (this.testSequenceIndex < this.testSequence.length) {
+                const nextIdiom = this.testSequence[this.testSequenceIndex];
+                this.testSequenceIndex++;
+                console.info('[IdiomLib] Test mode: returning', nextIdiom);
+                return nextIdiom;
+            }
+        }
+
         let lastPinyin: string;
 
         if (history.length === 0) {

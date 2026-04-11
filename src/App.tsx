@@ -1,0 +1,167 @@
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { App as CapacitorApp } from '@capacitor/app';
+import type { PluginListenerHandle } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
+import { useGameState } from './hooks/useGameState';
+import { GameMode, ChallengeConfig, GameMessage } from './types';
+import { idiomLib } from './idiomLib';
+import HomePage from './components/HomePage';
+import GamePage from './components/GamePage';
+import ChallengeConfigPage from './components/ChallengeConfigPage';
+import DetailModal from './components/DetailModal';
+import CandidatesModal from './components/CandidatesModal';
+
+type ViewType = 'home' | 'game' | 'challengeConfig';
+
+function App() {
+    const [view, setView] = useState<ViewType>('home');
+    const [gameState, gameActions] = useGameState();
+    const [detailModalIdiom, setDetailModalIdiom] = useState<string | null>(null);
+    const [candidatesModalIdiom, setCandidatesModalIdiom] = useState<string | null>(null);
+
+    const handleStartGame = useCallback(async (mode: GameMode, config?: ChallengeConfig) => {
+        gameActions.startNewGame(mode, config);
+        setView('game');
+        try {
+            await Haptics.impact({ style: ImpactStyle.Medium });
+        } catch (error) {
+            console.warn('Unable to trigger haptic feedback', error);
+        }
+    }, [gameActions]);
+
+    const handleBack = useCallback(() => {
+        if (detailModalIdiom) {
+            setDetailModalIdiom(null);
+            return;
+        }
+        if (candidatesModalIdiom) {
+            setCandidatesModalIdiom(null);
+            return;
+        }
+        if (view === 'game') {
+            setView('home');
+        } else if (view === 'challengeConfig') {
+            setView('home');
+        }
+    }, [view, detailModalIdiom, candidatesModalIdiom]);
+
+    useEffect(() => {
+        let listener: PluginListenerHandle | undefined;
+        let cancelled = false;
+
+        const setup = async () => {
+            const handle = await CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+                if (detailModalIdiom) {
+                    setDetailModalIdiom(null);
+                    return;
+                }
+                if (candidatesModalIdiom) {
+                    setCandidatesModalIdiom(null);
+                    return;
+                }
+                if (view === 'game') {
+                    setView('home');
+                    return;
+                }
+                if (view === 'challengeConfig') {
+                    setView('home');
+                    return;
+                }
+                if (canGoBack) {
+                    window.history.back();
+                } else {
+                    CapacitorApp.exitApp();
+                }
+            });
+
+            if (cancelled) {
+                handle.remove();
+            } else {
+                listener = handle;
+            }
+        };
+
+        setup();
+
+        return () => {
+            cancelled = true;
+            if (listener) {
+                listener.remove();
+            }
+        };
+    }, [view, detailModalIdiom, candidatesModalIdiom]);
+
+    const handleShowDetail = useCallback((idiom: string) => {
+        setDetailModalIdiom(idiom);
+    }, []);
+
+    const handleShowCandidates = useCallback((idiom: string) => {
+        setCandidatesModalIdiom(idiom);
+    }, []);
+
+    const handleCloseDetail = useCallback(() => {
+        setDetailModalIdiom(null);
+    }, []);
+
+    const handleCloseCandidates = useCallback(() => {
+        setCandidatesModalIdiom(null);
+    }, []);
+
+    const handleSelectChallengeMode = useCallback(() => {
+        setView('challengeConfig');
+    }, []);
+
+    const handleSelectEndlessMode = useCallback(() => {
+        handleStartGame(GameMode.Endless);
+    }, [handleStartGame]);
+
+    return (
+        <>
+            {view === 'home' && (
+                <HomePage
+                    sessions={gameState.sessions}
+                    onSelectEndlessMode={handleSelectEndlessMode}
+                    onSelectChallengeMode={handleSelectChallengeMode}
+                    onDeleteSession={gameActions.deleteSession}
+                    onClearAllSessions={gameActions.clearAllSessions}
+                />
+            )}
+
+            {view === 'challengeConfig' && (
+                <ChallengeConfigPage
+                    onBack={() => setView('home')}
+                    onStartGame={(config) => handleStartGame(GameMode.Challenge, config)}
+                />
+            )}
+
+            {view === 'game' && gameState.currentSession && (
+                <GamePage
+                    session={gameState.currentSession}
+                    remainingTime={gameState.remainingTime}
+                    currentTurnStartTime={gameState.currentTurnStartTime}
+                    onBack={() => setView('home')}
+                    onSubmitIdiom={gameActions.submitIdiom}
+                    onGiveUp={gameActions.giveUp}
+                    onTriggerComputerTurn={gameActions.triggerComputerTurn}
+                    onStartNewGame={(mode, config) => handleStartGame(mode, config)}
+                    onShowDetail={handleShowDetail}
+                    onShowCandidates={handleShowCandidates}
+                />
+            )}
+
+            <DetailModal
+                idiom={detailModalIdiom}
+                onClose={handleCloseDetail}
+            />
+
+            <CandidatesModal
+                idiom={candidatesModalIdiom}
+                onClose={handleCloseCandidates}
+                onShowDetail={handleShowDetail}
+            />
+        </>
+    );
+}
+
+export default App;
