@@ -1,0 +1,30 @@
+<svg width="2732" height="2732" viewBox="0 0 2732 2732" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="splashGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="2732" height="2732" fill="url(#splashGradient)"/>
+  
+  <!-- Chain link decoration -->
+  <g opacity="0.2">
+    <ellipse cx="960" cy="1066" rx="160" ry="200" fill="none" stroke="#ffffff" stroke-width="32" transform="rotate(-20 960 1066)"/>
+    <ellipse cx="1280" cy="1066" rx="160" ry="200" fill="none" stroke="#ffffff" stroke-width="32" transform="rotate(-20 1280 1066)"/>
+    <ellipse cx="1600" cy="1066" rx="160" ry="200" fill="none" stroke="#ffffff" stroke-width="32" transform="rotate(-20 1600 1066)"/>
+  </g>
+  
+  <!-- Main text -->
+  <text x="1366" y="1400" font-family="sans-serif" font-size="480" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">成语</text>
+  
+  <!-- Subtitle -->
+  <text x="1366" y="1760" font-family="sans-serif" font-size="288" font-weight="600" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" opacity="0.95">接龙</text>
+  
+  <!-- Decorative dots -->
+  <circle cx="746" cy="2000" r="24" fill="#ffffff" opacity="0.6"/>
+  <circle cx="906" cy="2000" r="24" fill="#ffffff" opacity="0.6"/>
+  <circle cx="1826" cy="2000" r="24" fill="#ffffff" opacity="0.6"/>
+  <circle cx="1986" cy="2000" r="24" fill="#ffffff" opacity="0.6"/>
+</svg>
