@@ -12,6 +12,7 @@ interface HomePageProps {
     patchesCount: number;
     onViewPinyinPatches: () => void;
     onViewIdiomLibrary: () => void;
+    onViewTrend: () => void;
 }
 
 function HomePage({
@@ -24,7 +25,8 @@ function HomePage({
     onViewSession,
     patchesCount,
     onViewPinyinPatches,
-    onViewIdiomLibrary
+    onViewIdiomLibrary,
+    onViewTrend
 }: HomePageProps) {
     const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
     const sideMenuRef = useRef<HTMLDivElement>(null);
@@ -114,6 +116,11 @@ function HomePage({
         onViewIdiomLibrary();
     };
 
+    const handleViewTrend = () => {
+        setIsSideMenuOpen(false);
+        onViewTrend();
+    };
+
     return (
         <div className="home-container">
             {isSideMenuOpen && <div className="side-menu-backdrop" onClick={() => setIsSideMenuOpen(false)} />}
@@ -128,6 +135,10 @@ function HomePage({
                     </button>
                 </div>
                 <div className="side-menu-content">
+                    <button className="side-menu-item" onClick={handleViewTrend}>
+                        <span className="side-menu-icon">📈</span>
+                        <span>成绩趋势</span>
+                    </button>
                     <button className="side-menu-item" onClick={handleViewIdiomLibrary}>
                         <span className="side-menu-icon">📚</span>
                         <span>成语词典</span>

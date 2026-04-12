@@ -17,8 +17,9 @@ import GameOverModal from './components/GameOverModal';
 import HistoryDetailPage from './components/HistoryDetailPage';
 import PinyinPatchPage from './components/PinyinPatchPage';
 import IdiomLibraryPage from './components/IdiomLibraryPage';
+import TrendPage from './components/TrendPage';
 
-type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'historyDetail' | 'pinyinPatch' | 'idiomLibrary';
+type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'historyDetail' | 'pinyinPatch' | 'idiomLibrary' | 'trend';
 
 function App() {
     const [view, setView] = useState<ViewType>('home');
@@ -100,6 +101,10 @@ function App() {
                     return;
                 }
                 if (view === 'idiomLibrary') {
+                    setView('home');
+                    return;
+                }
+                if (view === 'trend') {
                     setView('home');
                     return;
                 }
@@ -193,6 +198,7 @@ function App() {
                     patchesCount={patches.length}
                     onViewPinyinPatches={() => setView('pinyinPatch')}
                     onViewIdiomLibrary={() => setView('idiomLibrary')}
+                    onViewTrend={() => setView('trend')}
                 />
             )}
 
@@ -252,6 +258,13 @@ function App() {
                 <IdiomLibraryPage
                     onBack={() => setView('home')}
                     onShowDetail={handleShowDetail}
+                />
+            )}
+
+            {view === 'trend' && (
+                <TrendPage
+                    sessions={gameState.sessions}
+                    onBack={() => setView('home')}
                 />
             )}
 
