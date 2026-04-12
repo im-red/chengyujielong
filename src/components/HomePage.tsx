@@ -7,6 +7,7 @@ interface HomePageProps {
     onSelectLimitedTimeMode: () => void;
     onDeleteSession: (sessionId: string) => void;
     onClearAllSessions: () => void;
+    onViewSession: (sessionId: string) => void;
 }
 
 function HomePage({
@@ -15,7 +16,8 @@ function HomePage({
     onSelectChallengeMode,
     onSelectLimitedTimeMode,
     onDeleteSession,
-    onClearAllSessions
+    onClearAllSessions,
+    onViewSession
 }: HomePageProps) {
     const handleClearHistory = () => {
         if (confirm('确定要清空所有历史记录吗？')) {
@@ -81,6 +83,7 @@ function HomePage({
                                     key={session.id}
                                     session={session}
                                     onDelete={() => handleDeleteSession(session.id)}
+                                    onView={() => onViewSession(session.id)}
                                 />
                             ))}
                         </div>
@@ -91,7 +94,7 @@ function HomePage({
     );
 }
 
-function SessionCard({ session, onDelete }: { session: GameSession; onDelete: () => void }) {
+function SessionCard({ session, onDelete, onView }: { session: GameSession; onDelete: () => void; onView: () => void }) {
     const duration = session.endTime
         ? Math.floor((session.endTime - session.startTime) / 1000)
         : 0;
@@ -129,7 +132,7 @@ function SessionCard({ session, onDelete }: { session: GameSession; onDelete: ()
     }
 
     return (
-        <div className="session-card">
+        <div className="session-card" onClick={onView}>
             <div className="session-info">
                 <div className="session-mode">{modeNames[session.mode]}{configStr}</div>
                 <div className="session-stats">
@@ -140,7 +143,6 @@ function SessionCard({ session, onDelete }: { session: GameSession; onDelete: ()
                 <div className="session-date">{date.toLocaleString('zh-CN')}</div>
             </div>
             <div className="session-actions">
-                <button className="btn-icon" title="查看">👁️</button>
                 <button className="btn-icon" title="删除" onClick={(e) => { e.stopPropagation(); onDelete(); }}>🗑️</button>
             </div>
         </div>

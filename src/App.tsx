@@ -13,8 +13,9 @@ import LimitedTimeConfigPage from './components/LimitedTimeConfigPage';
 import DetailModal from './components/DetailModal';
 import CandidatesModal from './components/CandidatesModal';
 import GameOverModal from './components/GameOverModal';
+import HistoryDetailPage from './components/HistoryDetailPage';
 
-type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig';
+type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'historyDetail';
 
 function App() {
     const [view, setView] = useState<ViewType>('home');
@@ -22,6 +23,7 @@ function App() {
     const [detailModalIdiom, setDetailModalIdiom] = useState<string | null>(null);
     const [candidatesModalIdiom, setCandidatesModalIdiom] = useState<string | null>(null);
     const [isGameOverModalOpen, setIsGameOverModalOpen] = useState(false);
+    const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
 
     const handleStartGame = useCallback(async (mode: GameMode, config?: ChallengeConfig | LimitedTimeConfig) => {
         gameActions.startNewGame(mode, config);
@@ -52,6 +54,9 @@ function App() {
         } else if (view === 'challengeConfig') {
             setView('home');
         } else if (view === 'limitedTimeConfig') {
+            setView('home');
+        } else if (view === 'historyDetail') {
+            setSelectedSessionId(null);
             setView('home');
         }
     }, [view, detailModalIdiom, candidatesModalIdiom, isGameOverModalOpen]);
@@ -84,6 +89,11 @@ function App() {
                     return;
                 }
                 if (view === 'limitedTimeConfig') {
+                    setView('home');
+                    return;
+                }
+                if (view === 'historyDetail') {
+                    setSelectedSessionId(null);
                     setView('home');
                     return;
                 }
@@ -139,6 +149,11 @@ function App() {
         handleStartGame(GameMode.Endless);
     }, [handleStartGame]);
 
+    const handleViewSession = useCallback((sessionId: string) => {
+        setSelectedSessionId(sessionId);
+        setView('historyDetail');
+    }, []);
+
     const handleGameOver = useCallback(() => {
         setIsGameOverModalOpen(true);
     }, []);
@@ -165,6 +180,7 @@ function App() {
                     onSelectLimitedTimeMode={handleSelectLimitedTimeMode}
                     onDeleteSession={gameActions.deleteSession}
                     onClearAllSessions={gameActions.clearAllSessions}
+                    onViewSession={handleViewSession}
                 />
             )}
 
@@ -196,6 +212,18 @@ function App() {
                     onShowDetail={handleShowDetail}
                     onShowCandidates={handleShowCandidates}
                     onGameOver={handleGameOver}
+                />
+            )}
+
+            {view === 'historyDetail' && selectedSessionId && (
+                <HistoryDetailPage
+                    session={gameState.sessions.find(s => s.id === selectedSessionId)!}
+                    onBack={() => {
+                        setSelectedSessionId(null);
+                        setView('home');
+                    }}
+                    onShowDetail={handleShowDetail}
+                    onShowCandidates={handleShowCandidates}
                 />
             )}
 
