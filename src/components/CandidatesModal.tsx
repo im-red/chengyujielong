@@ -64,8 +64,7 @@ function CandidatesModal({ idiom, onClose, onShowDetail }: CandidatesModalProps)
     const handleCandidateClick = (candidateIdiom: string) => {
         const input = document.getElementById('idiom-input') as HTMLInputElement;
         if (input) input.focus();
-        onClose();
-        setTimeout(() => onShowDetail(candidateIdiom), 300);
+        onShowDetail(candidateIdiom);
     };
 
     const getCandidatesForType = () => {
@@ -94,28 +93,30 @@ function CandidatesModal({ idiom, onClose, onShowDetail }: CandidatesModalProps)
             onTouchStart={handleTouchStart}
         >
             <div className="modal-content">
-                <button
-                    type="button"
-                    className="close-modal"
-                    onClick={() => {
-                        const input = document.getElementById('idiom-input') as HTMLInputElement;
-                        if (input) input.focus();
-                        onClose();
-                    }}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onTouchStart={(e) => e.preventDefault()}
-                    onTouchEnd={(e) => {
-                        e.preventDefault();
-                        const input = document.getElementById('idiom-input') as HTMLInputElement;
-                        if (input) input.focus();
-                        onClose();
-                    }}
-                >
-                    &times;
-                </button>
                 {idiom && (
                     <>
-                        <h2>候选成语统计</h2>
+                        <div className="modal-header">
+                            <h2>候选成语统计</h2>
+                            <button
+                                type="button"
+                                className="close-modal"
+                                onClick={() => {
+                                    const input = document.getElementById('idiom-input') as HTMLInputElement;
+                                    if (input) input.focus();
+                                    onClose();
+                                }}
+                                onMouseDown={(e) => e.preventDefault()}
+                                onTouchStart={(e) => e.preventDefault()}
+                                onTouchEnd={(e) => {
+                                    e.preventDefault();
+                                    const input = document.getElementById('idiom-input') as HTMLInputElement;
+                                    if (input) input.focus();
+                                    onClose();
+                                }}
+                            >
+                                &times;
+                            </button>
+                        </div>
                         <div className="candidates-stats">
                             <div
                                 className="stat-item clickable"

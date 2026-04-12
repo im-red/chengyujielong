@@ -106,7 +106,7 @@ test.describe('Candidate List Click on Mobile', () => {
         await context.close();
     });
 
-    test('clicking candidate item should show detail modal on mobile', async ({ browser }) => {
+    test('clicking candidate item should show detail modal while keeping candidates modal open on mobile', async ({ browser }) => {
         const context = await browser.newContext({
             hasTouch: true,
             viewport: { width: 375, height: 667 }
@@ -154,12 +154,24 @@ test.describe('Candidate List Click on Mobile', () => {
         await page.waitForTimeout(400);
 
         const candidatesModal = page.locator('#candidates-modal');
-        await expect(candidatesModal).not.toHaveClass(/show/);
-        console.log('[Test] ✓ Candidates modal closed');
+        await expect(candidatesModal).toHaveClass(/show/);
+        console.log('[Test] ✓ Candidates modal stays open');
 
         const detailModal = page.locator('#detail-modal');
         await expect(detailModal).toHaveClass(/show/);
         console.log('[Test] ✓ Detail modal opened after tapping candidate');
+
+        const candidatesZIndex = await candidatesModal.evaluate((el) => {
+            return window.getComputedStyle(el).zIndex;
+        });
+        const detailZIndex = await detailModal.evaluate((el) => {
+            return window.getComputedStyle(el).zIndex;
+        });
+        console.log('[Test] Candidates modal z-index:', candidatesZIndex);
+        console.log('[Test] Detail modal z-index:', detailZIndex);
+
+        expect(parseInt(detailZIndex)).toBeGreaterThan(parseInt(candidatesZIndex));
+        console.log('[Test] ✓ Detail modal has higher z-index than candidates modal');
 
         await context.close();
     });

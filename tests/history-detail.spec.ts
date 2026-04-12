@@ -677,3 +677,177 @@ test.describe('Game Over Modal', () => {
         console.log('[Test]   - Title width = Content area width');
     });
 });
+
+test.describe('Modal Title and Close Button Alignment', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('/');
+        await page.waitForSelector('.mode-card');
+        await setupTestMode(page);
+    });
+
+    test('detail modal title and close button should be vertically aligned', async ({ page }) => {
+        console.log('[Test] Testing detail modal title and close button vertical alignment');
+
+        await startEndlessMode(page);
+
+        const firstComputerIdiom = TEST_IDIOM_SEQUENCE[0];
+        const userResponse = TEST_USER_RESPONSES[firstComputerIdiom];
+
+        await submitIdiom(page, userResponse);
+        await page.waitForTimeout(500);
+
+        const userBubble = page.locator('.user-message .message-bubble').first();
+        await userBubble.click();
+
+        const detailModal = page.locator('#detail-modal');
+        await expect(detailModal).toBeVisible();
+        await page.waitForTimeout(300);
+        console.log('[Test] Detail modal visible');
+
+        const modalContent = detailModal.locator('.modal-content');
+        const modalHeader = modalContent.locator('.modal-header');
+        const title = modalHeader.locator('h2');
+        const closeButton = modalHeader.locator('.close-modal');
+
+        const printGeometry = async (element: any, name: string) => {
+            const box = await element.boundingBox();
+            const styles = await element.evaluate((el) => {
+                const style = window.getComputedStyle(el);
+                return {
+                    position: style.position,
+                    top: style.top,
+                    right: style.right,
+                    bottom: style.bottom,
+                    left: style.left,
+                    marginTop: style.marginTop,
+                    marginBottom: style.marginBottom,
+                    marginLeft: style.marginLeft,
+                    marginRight: style.marginRight,
+                    paddingTop: style.paddingTop,
+                    paddingBottom: style.paddingBottom,
+                    paddingLeft: style.paddingLeft,
+                    paddingRight: style.paddingRight,
+                    borderTop: style.borderTopWidth,
+                    borderBottom: style.borderBottomWidth,
+                    borderLeft: style.borderLeftWidth,
+                    borderRight: style.borderRightWidth,
+                    lineHeight: style.lineHeight,
+                    fontSize: style.fontSize,
+                    height: style.height,
+                    width: style.width,
+                    display: style.display,
+                    alignItems: style.alignItems,
+                };
+            });
+            console.log(`[Test] ${name} geometry:`);
+            console.log(`  boundingBox: x=${box?.x}, y=${box?.y}, width=${box?.width}, height=${box?.height}`);
+            console.log(`  center: (${box?.x! + box?.width! / 2}, ${box?.y! + box?.height! / 2})`);
+            console.log(`  CSS styles:`, styles);
+            return { box, styles };
+        };
+
+        await printGeometry(modalContent, 'modal-content');
+        await printGeometry(modalHeader, 'modal-header');
+        const titleInfo = await printGeometry(title, 'title h2');
+        const closeInfo = await printGeometry(closeButton, 'close-button');
+
+        const titleCenterY = titleInfo.box!.y + titleInfo.box!.height / 2;
+        const closeButtonCenterY = closeInfo.box!.y + closeInfo.box!.height / 2;
+
+        const verticalDiff = Math.abs(titleCenterY - closeButtonCenterY);
+        console.log('[Test] Vertical difference:', verticalDiff);
+
+        expect(verticalDiff).toBeLessThan(3);
+        console.log('[Test] ✓ Title and close button are vertically aligned');
+    });
+
+    test('candidates modal title and close button should be vertically aligned', async ({ page }) => {
+        console.log('[Test] Testing candidates modal title and close button vertical alignment');
+
+        await startEndlessMode(page);
+
+        const firstComputerIdiom = TEST_IDIOM_SEQUENCE[0];
+        const userResponse = TEST_USER_RESPONSES[firstComputerIdiom];
+
+        await submitIdiom(page, userResponse);
+        await page.waitForTimeout(500);
+
+        const computerBubble = page.locator('.computer-message .message-bubble').first();
+        await computerBubble.evaluate((el) => {
+            const touchStartEvent = new TouchEvent('touchstart', {
+                bubbles: true,
+                cancelable: true,
+                touches: [new Touch({
+                    identifier: 0,
+                    target: el,
+                    clientX: el.getBoundingClientRect().left + el.offsetWidth / 2,
+                    clientY: el.getBoundingClientRect().top + el.offsetHeight / 2
+                })]
+            });
+            el.dispatchEvent(touchStartEvent);
+        });
+
+        await page.waitForTimeout(600);
+
+        const candidatesModal = page.locator('#candidates-modal');
+        await expect(candidatesModal).toBeVisible();
+        await page.waitForTimeout(300);
+        console.log('[Test] Candidates modal visible');
+
+        const modalContent = candidatesModal.locator('.modal-content');
+        const modalHeader = modalContent.locator('.modal-header');
+        const title = modalHeader.locator('h2');
+        const closeButton = modalHeader.locator('.close-modal');
+
+        const printGeometry = async (element: any, name: string) => {
+            const box = await element.boundingBox();
+            const styles = await element.evaluate((el) => {
+                const style = window.getComputedStyle(el);
+                return {
+                    position: style.position,
+                    top: style.top,
+                    right: style.right,
+                    bottom: style.bottom,
+                    left: style.left,
+                    marginTop: style.marginTop,
+                    marginBottom: style.marginBottom,
+                    marginLeft: style.marginLeft,
+                    marginRight: style.marginRight,
+                    paddingTop: style.paddingTop,
+                    paddingBottom: style.paddingBottom,
+                    paddingLeft: style.paddingLeft,
+                    paddingRight: style.paddingRight,
+                    borderTop: style.borderTopWidth,
+                    borderBottom: style.borderBottomWidth,
+                    borderLeft: style.borderLeftWidth,
+                    borderRight: style.borderRightWidth,
+                    lineHeight: style.lineHeight,
+                    fontSize: style.fontSize,
+                    height: style.height,
+                    width: style.width,
+                    display: style.display,
+                    alignItems: style.alignItems,
+                };
+            });
+            console.log(`[Test] ${name} geometry:`);
+            console.log(`  boundingBox: x=${box?.x}, y=${box?.y}, width=${box?.width}, height=${box?.height}`);
+            console.log(`  center: (${box?.x! + box?.width! / 2}, ${box?.y! + box?.height! / 2})`);
+            console.log(`  CSS styles:`, styles);
+            return { box, styles };
+        };
+
+        await printGeometry(modalContent, 'modal-content');
+        await printGeometry(modalHeader, 'modal-header');
+        const titleInfo = await printGeometry(title, 'title h2');
+        const closeInfo = await printGeometry(closeButton, 'close-button');
+
+        const titleCenterY = titleInfo.box!.y + titleInfo.box!.height / 2;
+        const closeButtonCenterY = closeInfo.box!.y + closeInfo.box!.height / 2;
+
+        const verticalDiff = Math.abs(titleCenterY - closeButtonCenterY);
+        console.log('[Test] Vertical difference:', verticalDiff);
+
+        expect(verticalDiff).toBeLessThan(3);
+        console.log('[Test] ✓ Title and close button are vertically aligned');
+    });
+});

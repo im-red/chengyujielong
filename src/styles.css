@@ -820,6 +820,14 @@ body {
   justify-content: center;
 }
 
+#candidates-modal {
+  z-index: 100;
+}
+
+#detail-modal {
+  z-index: 110;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -865,7 +873,7 @@ body {
 .close-modal {
   position: absolute;
   right: 1rem;
-  top: 1rem;
+  top: calc(var(--spacing-base) + 0.9rem - 22px);
   font-size: 1.75rem;
   font-weight: bold;
   color: var(--text-muted);
@@ -885,9 +893,28 @@ body {
   opacity: 0.7;
 }
 
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.modal-content .modal-header h2 {
+  margin: 0;
+  padding-right: 0;
+}
+
+.modal-header .close-modal {
+  position: static;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+}
+
 .modal-content h2 {
   color: var(--primary);
   font-size: 1.5rem;
+  margin-top: 0;
   margin-bottom: 1rem;
   padding-right: 44px;
   font-weight: 600;

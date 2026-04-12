@@ -57,28 +57,30 @@ function DetailModal({ idiom, onClose }: DetailModalProps) {
             onTouchStart={handleTouchStart}
         >
             <div className="modal-content">
-                <button
-                    type="button"
-                    className="close-modal"
-                    onClick={() => {
-                        const input = document.getElementById('idiom-input') as HTMLInputElement;
-                        if (input) input.focus();
-                        onClose();
-                    }}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onTouchStart={(e) => e.preventDefault()}
-                    onTouchEnd={(e) => {
-                        e.preventDefault();
-                        const input = document.getElementById('idiom-input') as HTMLInputElement;
-                        if (input) input.focus();
-                        onClose();
-                    }}
-                >
-                    &times;
-                </button>
                 {idiom && (
                     <>
-                        <h2>{idiom}</h2>
+                        <div className="modal-header">
+                            <h2>{idiom}</h2>
+                            <button
+                                type="button"
+                                className="close-modal"
+                                onClick={() => {
+                                    const input = document.getElementById('idiom-input') as HTMLInputElement;
+                                    if (input) input.focus();
+                                    onClose();
+                                }}
+                                onMouseDown={(e) => e.preventDefault()}
+                                onTouchStart={(e) => e.preventDefault()}
+                                onTouchEnd={(e) => {
+                                    e.preventDefault();
+                                    const input = document.getElementById('idiom-input') as HTMLInputElement;
+                                    if (input) input.focus();
+                                    onClose();
+                                }}
+                            >
+                                &times;
+                            </button>
+                        </div>
                         <div id="modal-body" className="detail-content">{info}</div>
                     </>
                 )}
