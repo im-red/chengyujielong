@@ -7,7 +7,7 @@
   </defs>
   
   <!-- Background -->
-  <rect width="2732" height="2732" fill="url(#splashGradient)"/>
+  <!-- Removed to allow transparent splash on top of XML gradient -->
   
   <!-- Chain link decoration -->
   <g opacity="0.2">

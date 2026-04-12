@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { App as CapacitorApp } from '@capacitor/app';
+import { SplashScreen } from '@capacitor/splash-screen';
 import type { PluginListenerHandle } from '@capacitor/core';
 import { useGameState } from './hooks/useGameState';
 import { usePinyinPatches } from './hooks/usePinyinPatches';
@@ -32,6 +33,18 @@ function App() {
     useEffect(() => {
         idiomLib.setPatches(patches);
     }, [patches]);
+
+    useEffect(() => {
+        // Hide splash screen once the app component is mounted and idioms are available
+        const hideSplash = async () => {
+            try {
+                await SplashScreen.hide();
+            } catch (err) {
+                console.warn('Error hiding splash screen', err);
+            }
+        };
+        hideSplash();
+    }, []);
 
     const handleStartGame = useCallback(async (mode: GameMode, config?: ChallengeConfig | LimitedTimeConfig) => {
         gameActions.startNewGame(mode, config);

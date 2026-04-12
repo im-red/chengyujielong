@@ -17,10 +17,10 @@
   </g>
   
   <!-- Main text -->
-  <text x="512" y="520" font-family="sans-serif" font-size="240" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">成语</text>
+  <text x="512" y="500" font-family="sans-serif" font-size="360" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">成语</text>
   
   <!-- Subtitle -->
-  <text x="512" y="700" font-family="sans-serif" font-size="144" font-weight="600" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" opacity="0.95">接龙</text>
+  <text x="512" y="760" font-family="sans-serif" font-size="200" font-weight="600" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" opacity="0.95">接龙</text>
   
   <!-- Decorative dots -->
   <circle cx="280" cy="800" r="16" fill="#ffffff" opacity="0.6"/>
