@@ -36,6 +36,8 @@ export interface GameMessage {
     timeCost: number; // milliseconds
     isError?: boolean;
     errorType?: RecordType;
+    score?: number; // score earned for this submission (only for Endless/LimitedTime mode)
+    isGiveUp?: boolean; // true when user gives up
 }
 
 export interface GameSession {

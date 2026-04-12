@@ -339,8 +339,8 @@ test.describe('Limited-Time Mode - Game Time Countdown', () => {
 
         await page.waitForTimeout(35000);
 
-        const gameOver = page.locator('.game-over-section');
-        await expect(gameOver).toBeVisible({ timeout: 5000 });
+        const gameOverModal = page.locator('#game-over-modal.show');
+        await expect(gameOverModal).toBeVisible({ timeout: 5000 });
         console.log('[Test] ✓ Game ended when time ran out');
     });
 
@@ -353,7 +353,7 @@ test.describe('Limited-Time Mode - Game Time Countdown', () => {
 
         await page.waitForTimeout(35000);
 
-        const finalScore = page.locator('.game-final-score');
+        const finalScore = page.locator('.game-over-score-value');
         await expect(finalScore).toBeVisible({ timeout: 5000 });
         console.log('[Test] ✓ Final score displayed');
     });
@@ -413,16 +413,27 @@ test.describe('Limited-Time Mode - Give Up', () => {
         for (let i = 0; i < 3; i++) {
             const giveUpBtn = page.locator('#giveup-btn');
             await giveUpBtn.click();
-            await page.waitForTimeout(1000);
+            await page.waitForTimeout(1500);
         }
 
-        const scoreDisplay = page.locator('#score-display');
-        const scoreText = await scoreDisplay.textContent();
-        const scoreMatch = scoreText?.match(/得分:\s*(-?\d+)/);
-        const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
-        console.log('[Test] Score after 3 give ups:', score);
+        const gameOverModal = page.locator('#game-over-modal.show');
+        const isGameOver = await gameOverModal.isVisible().catch(() => false);
 
-        expect(score).toBe(-30);
+        if (isGameOver) {
+            const finalScore = page.locator('.game-over-score-value');
+            const scoreText = await finalScore.textContent();
+            const score = scoreText ? parseInt(scoreText) : 0;
+            console.log('[Test] Final score after game over:', score);
+            expect(score).toBe(-30);
+        } else {
+            const scoreDisplay = page.locator('#score-display');
+            await expect(scoreDisplay).toBeVisible({ timeout: 5000 });
+            const scoreText = await scoreDisplay.textContent();
+            const scoreMatch = scoreText?.match(/得分:\s*(-?\d+)/);
+            const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+            console.log('[Test] Score after 3 give ups:', score);
+            expect(score).toBe(-30);
+        }
         console.log('[Test] ✓ Multiple give ups allowed with cumulative penalty');
     });
 });
@@ -498,7 +509,7 @@ test.describe('Limited-Time Mode - Scoring', () => {
 });
 
 test.describe('Limited-Time Mode - Game Over', () => {
-    test('should show game over section when time ends', async ({ page }) => {
+    test('should show game over modal when time ends', async ({ page }) => {
         console.log('[Test] Testing game over UI');
 
         test.setTimeout(60000);
@@ -507,8 +518,8 @@ test.describe('Limited-Time Mode - Game Over', () => {
 
         await page.waitForTimeout(35000);
 
-        const gameOver = page.locator('.game-over-section');
-        await expect(gameOver).toBeVisible({ timeout: 5000 });
+        const gameOverModal = page.locator('#game-over-modal.show');
+        await expect(gameOverModal).toBeVisible({ timeout: 5000 });
 
         const newGameBtn = page.locator('#new-game-btn');
         await expect(newGameBtn).toBeVisible();
@@ -516,7 +527,7 @@ test.describe('Limited-Time Mode - Game Over', () => {
         const homeBtn = page.locator('#home-btn');
         await expect(homeBtn).toBeVisible();
 
-        console.log('[Test] ✓ Game over UI displayed correctly');
+        console.log('[Test] ✓ Game over modal displayed correctly');
     });
 
     test('should restart game when clicking new game button', async ({ page }) => {

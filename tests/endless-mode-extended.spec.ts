@@ -171,8 +171,8 @@ test.describe('Endless Mode - Game Never Ends', () => {
         }
 
         // Verify game never ended
-        const gameOver = page.locator('.game-over-section');
-        await expect(gameOver).not.toBeVisible();
+        const gameOverModal = page.locator('#game-over-modal.show');
+        await expect(gameOverModal).not.toBeVisible();
         console.log('[Test] ✓ Game never ended');
     });
 
@@ -194,8 +194,8 @@ test.describe('Endless Mode - Game Never Ends', () => {
         console.log('[Test] ✓ Game still active after 10 wrong submissions');
 
         // Verify game never ended
-        const gameOver = page.locator('.game-over-section');
-        await expect(gameOver).not.toBeVisible();
+        const gameOverModal = page.locator('#game-over-modal.show');
+        await expect(gameOverModal).not.toBeVisible();
         console.log('[Test] ✓ Game never ended');
     });
 });

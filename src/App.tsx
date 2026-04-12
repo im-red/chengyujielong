@@ -12,6 +12,7 @@ import ChallengeConfigPage from './components/ChallengeConfigPage';
 import LimitedTimeConfigPage from './components/LimitedTimeConfigPage';
 import DetailModal from './components/DetailModal';
 import CandidatesModal from './components/CandidatesModal';
+import GameOverModal from './components/GameOverModal';
 
 type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig';
 
@@ -20,6 +21,7 @@ function App() {
     const [gameState, gameActions] = useGameState();
     const [detailModalIdiom, setDetailModalIdiom] = useState<string | null>(null);
     const [candidatesModalIdiom, setCandidatesModalIdiom] = useState<string | null>(null);
+    const [isGameOverModalOpen, setIsGameOverModalOpen] = useState(false);
 
     const handleStartGame = useCallback(async (mode: GameMode, config?: ChallengeConfig | LimitedTimeConfig) => {
         gameActions.startNewGame(mode, config);
@@ -32,6 +34,11 @@ function App() {
     }, [gameActions]);
 
     const handleBack = useCallback(() => {
+        if (isGameOverModalOpen) {
+            setIsGameOverModalOpen(false);
+            setView('home');
+            return;
+        }
         if (detailModalIdiom) {
             setDetailModalIdiom(null);
             return;
@@ -47,7 +54,7 @@ function App() {
         } else if (view === 'limitedTimeConfig') {
             setView('home');
         }
-    }, [view, detailModalIdiom, candidatesModalIdiom]);
+    }, [view, detailModalIdiom, candidatesModalIdiom, isGameOverModalOpen]);
 
     useEffect(() => {
         let listener: PluginListenerHandle | undefined;
@@ -55,6 +62,11 @@ function App() {
 
         const setup = async () => {
             const handle = await CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+                if (isGameOverModalOpen) {
+                    setIsGameOverModalOpen(false);
+                    setView('home');
+                    return;
+                }
                 if (detailModalIdiom) {
                     setDetailModalIdiom(null);
                     return;
@@ -97,7 +109,7 @@ function App() {
                 listener.remove();
             }
         };
-    }, [view, detailModalIdiom, candidatesModalIdiom]);
+    }, [view, detailModalIdiom, candidatesModalIdiom, isGameOverModalOpen]);
 
     const handleShowDetail = useCallback((idiom: string) => {
         setDetailModalIdiom(idiom);
@@ -126,6 +138,22 @@ function App() {
     const handleSelectEndlessMode = useCallback(() => {
         handleStartGame(GameMode.Endless);
     }, [handleStartGame]);
+
+    const handleGameOver = useCallback(() => {
+        setIsGameOverModalOpen(true);
+    }, []);
+
+    const handleGameOverNewGame = useCallback(() => {
+        setIsGameOverModalOpen(false);
+        if (gameState.currentSession) {
+            handleStartGame(gameState.currentSession.mode);
+        }
+    }, [gameState.currentSession, handleStartGame]);
+
+    const handleGameOverGoHome = useCallback(() => {
+        setIsGameOverModalOpen(false);
+        setView('home');
+    }, []);
 
     return (
         <>
@@ -167,6 +195,7 @@ function App() {
                     onStartNewGame={(mode, config) => handleStartGame(mode, config)}
                     onShowDetail={handleShowDetail}
                     onShowCandidates={handleShowCandidates}
+                    onGameOver={handleGameOver}
                 />
             )}
 
@@ -179,6 +208,14 @@ function App() {
                 idiom={candidatesModalIdiom}
                 onClose={handleCloseCandidates}
                 onShowDetail={handleShowDetail}
+            />
+
+            <GameOverModal
+                isOpen={isGameOverModalOpen}
+                score={gameState.currentSession?.score ?? 0}
+                mode={gameState.currentSession?.mode ?? GameMode.Endless}
+                onNewGame={handleGameOverNewGame}
+                onGoHome={handleGameOverGoHome}
             />
         </>
     );

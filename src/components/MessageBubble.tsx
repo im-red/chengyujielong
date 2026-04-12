@@ -1,14 +1,28 @@
 import { useCallback, useRef, useState } from 'react';
-import { GameMessage } from '../types';
+import { GameMessage, RecordType, GameMode } from '../types';
 
 interface MessageBubbleProps {
     message: GameMessage;
     isFirst: boolean;
+    mode: GameMode;
     onShowDetail: (idiom: string) => void;
     onShowCandidates: (idiom: string) => void;
 }
 
-function MessageBubble({ message, isFirst, onShowDetail, onShowCandidates }: MessageBubbleProps) {
+function getErrorReason(errorType: RecordType): string {
+    switch (errorType) {
+        case RecordType.IdiomNotExist:
+            return '成语不存在';
+        case RecordType.IdiomDuplicate:
+            return '成语已使用';
+        case RecordType.PinyinNotMatch:
+            return '拼音不匹配';
+        default:
+            return '未知错误';
+    }
+}
+
+function MessageBubble({ message, isFirst, mode, onShowDetail, onShowCandidates }: MessageBubbleProps) {
     const longPressTimerRef = useRef<number | null>(null);
     const [isLongPress, setIsLongPress] = useState(false);
     const LONG_PRESS_DURATION = 500;
@@ -64,6 +78,25 @@ function MessageBubble({ message, isFirst, onShowDetail, onShowCandidates }: Mes
 
     const timeStr = formatTimeCost(message.timeCost);
 
+    const shouldShowScore = message.isUser && !message.isError && !message.isGiveUp &&
+        (mode === GameMode.Endless || mode === GameMode.LimitedTime) &&
+        message.score !== undefined;
+
+    const isGiveUpMessage = message.isUser && message.isGiveUp;
+
+    if (isGiveUpMessage) {
+        return (
+            <div className="message user-message">
+                <div className="message-bubble give-up-bubble">
+                    {message.idiom}
+                </div>
+                <div className="message-time">
+                    <span className="message-score message-score-negative">-10分</span>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={`message ${message.isUser ? 'user-message' : 'computer-message'}`}>
             <div
@@ -78,8 +111,14 @@ function MessageBubble({ message, isFirst, onShowDetail, onShowCandidates }: Mes
             >
                 {message.idiom}
             </div>
+            {message.isUser && message.isError && message.errorType && (
+                <div className="message-error-reason">{getErrorReason(message.errorType)}</div>
+            )}
             {message.isUser && !message.isError && (
-                <div className="message-time">{timeStr}</div>
+                <div className="message-time">
+                    {timeStr}
+                    {shouldShowScore && <span className="message-score">+{message.score}分</span>}
+                </div>
             )}
             {isFirst && !message.isUser && (
                 <div className="message-hint">点击查看详情 · 长按查看候选</div>

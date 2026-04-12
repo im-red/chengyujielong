@@ -312,16 +312,17 @@ export function useGameState(): [GameState, GameActions] {
             return { success: false, error: errorMessage, errorType: result };
         }
 
+        const scoreToAdd = (currentSession.mode === GameMode.Endless || currentSession.mode === GameMode.LimitedTime)
+            ? calculateEndlessScore(timeCost)
+            : 10;
+
         const message: GameMessage = {
             idiom: input,
             isUser: true,
             timestamp: now,
-            timeCost
+            timeCost,
+            score: scoreToAdd
         };
-
-        const scoreToAdd = (currentSession.mode === GameMode.Endless || currentSession.mode === GameMode.LimitedTime)
-            ? calculateEndlessScore(timeCost)
-            : 10;
 
         let updatedSession = {
             ...currentSession,
@@ -351,7 +352,7 @@ export function useGameState(): [GameState, GameActions] {
                 }
 
                 const history = prevSession.messages
-                    .filter(m => !m.isError)
+                    .filter(m => !m.isError && !m.isGiveUp)
                     .map(m => m.idiom);
 
                 const nextIdiom = idiomLib.pickNext(history);
@@ -401,12 +402,24 @@ export function useGameState(): [GameState, GameActions] {
         }
 
         if (currentSession.mode === GameMode.Endless || currentSession.mode === GameMode.LimitedTime) {
+            const now = Date.now();
+            const giveUpMessage: GameMessage = {
+                idiom: '放弃',
+                isUser: true,
+                timestamp: now,
+                timeCost: 0,
+                isGiveUp: true,
+                score: -10
+            };
+
             const updatedSession = {
                 ...currentSession,
+                messages: [...currentSession.messages, giveUpMessage],
                 score: currentSession.score - 10
             };
             setCurrentSession(updatedSession);
             saveCurrentSession(updatedSession);
+            setCurrentTurnStartTime(now);
             triggerComputerTurn();
         }
     }, [currentSession, triggerComputerTurn, saveCurrentSession]);

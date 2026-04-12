@@ -46,11 +46,11 @@ test.describe('Challenge Mode - Classic (0 Lives)', () => {
         await submitIdiom(page, '错误成语');
         await page.waitForTimeout(300);
 
-        const gameOver = page.locator('.game-over-section');
-        await expect(gameOver).toBeVisible();
+        const gameOverModal = page.locator('#game-over-modal.show');
+        await expect(gameOverModal).toBeVisible();
         console.log('[Test] ✓ Game ended on first wrong submission');
 
-        const finalScore = page.locator('.game-final-score');
+        const finalScore = page.locator('.game-over-score-value');
         await expect(finalScore).toBeVisible();
         console.log('[Test] ✓ Final score displayed');
     });
@@ -86,8 +86,8 @@ test.describe('Challenge Mode - Classic (0 Lives)', () => {
             console.log('[Test] ⚠ Error occurred:', errorText);
         }
 
-        const gameOver = page.locator('.game-over-section');
-        const isGameOver = await gameOver.isVisible().catch(() => false);
+        const gameOverModal = page.locator('#game-over-modal.show');
+        const isGameOver = await gameOverModal.isVisible().catch(() => false);
 
         if (isGameOver) {
             console.log('[Test] ⚠ Game ended unexpectedly');
@@ -167,8 +167,8 @@ test.describe('Challenge Mode - Lives Mode', () => {
         await submitIdiom(page, '错误成语2');
         await page.waitForTimeout(300);
 
-        const gameOver = page.locator('.game-over-section');
-        await expect(gameOver).toBeVisible();
+        const gameOverModal = page.locator('#game-over-modal.show');
+        await expect(gameOverModal).toBeVisible();
         console.log('[Test] ✓ Game ended when all lives lost');
     });
 });
@@ -212,8 +212,8 @@ test.describe('Challenge Mode - Timer Mode', () => {
         const messageCount = await page.locator('.message').count();
         console.log('[Test] Total messages after timeout:', messageCount);
 
-        const gameOver = page.locator('.game-over-section');
-        await expect(gameOver).toBeVisible();
+        const gameOverModal = page.locator('#game-over-modal.show');
+        await expect(gameOverModal).toBeVisible();
         console.log('[Test] ✓ Game ended when time ran out');
     });
 });
@@ -241,8 +241,8 @@ test.describe('Challenge Mode - Combined Mode', () => {
         await submitIdiom(page, '错误成语');
         await page.waitForTimeout(300);
 
-        const gameOver = page.locator('.game-over-section');
-        await expect(gameOver).toBeVisible();
+        const gameOverModal = page.locator('#game-over-modal.show');
+        await expect(gameOverModal).toBeVisible();
         console.log('[Test] ✓ Game ended on lives out');
     });
 });

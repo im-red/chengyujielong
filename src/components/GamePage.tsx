@@ -15,6 +15,7 @@ interface GamePageProps {
     onStartNewGame: (mode: GameMode, config?: { lives: number; timeLimit: number }) => void;
     onShowDetail: (idiom: string) => void;
     onShowCandidates: (idiom: string) => void;
+    onGameOver: () => void;
 }
 
 function GamePage({
@@ -28,7 +29,8 @@ function GamePage({
     onTriggerComputerTurn,
     onStartNewGame,
     onShowDetail,
-    onShowCandidates
+    onShowCandidates,
+    onGameOver
 }: GamePageProps) {
     const [input, setInput] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -92,6 +94,14 @@ function GamePage({
             }
         }
     }, [session.isActive, session.messages.length, isSubmitting]);
+
+    const wasActiveRef = useRef(session.isActive);
+    useEffect(() => {
+        if (wasActiveRef.current && !session.isActive) {
+            onGameOver();
+        }
+        wasActiveRef.current = session.isActive;
+    }, [session.isActive, onGameOver]);
 
     const handleSubmit = useCallback(async () => {
         if (!input.trim() || isSubmitting) return;
@@ -194,6 +204,7 @@ function GamePage({
                         key={`${msg.timestamp}-${index}`}
                         message={msg}
                         isFirst={index === 0}
+                        mode={session.mode}
                         onShowDetail={onShowDetail}
                         onShowCandidates={onShowCandidates}
                     />
@@ -259,17 +270,7 @@ function GamePage({
                         )}
                     </div>
                 </div>
-            ) : (
-                <div className="game-over-section">
-                    <div className="game-final-score">最终得分: {session.score}</div>
-                    <button className="btn btn-primary" id="new-game-btn" onClick={handleNewGame}>
-                        再来一局
-                    </button>
-                    <button className="btn btn-secondary" id="home-btn" onClick={onBack}>
-                        返回主页
-                    </button>
-                </div>
-            )}
+            ) : null}
         </div>
     );
 }
