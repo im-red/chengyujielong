@@ -7,6 +7,7 @@ interface GamePageProps {
     session: GameSession;
     remainingTime: number;
     currentTurnStartTime: number;
+    gameRemainingTime: number;
     onBack: () => void;
     onSubmitIdiom: (input: string) => { success: boolean; error?: string; errorType?: RecordType };
     onGiveUp: () => void;
@@ -20,6 +21,7 @@ function GamePage({
     session,
     remainingTime,
     currentTurnStartTime,
+    gameRemainingTime,
     onBack,
     onSubmitIdiom,
     onGiveUp,
@@ -36,7 +38,8 @@ function GamePage({
 
     const modeNames = {
         [GameMode.Endless]: '无尽模式',
-        [GameMode.Challenge]: '挑战模式'
+        [GameMode.Challenge]: '挑战模式',
+        [GameMode.LimitedTime]: '限时模式'
     };
 
     let modeDisplay = modeNames[session.mode];
@@ -52,6 +55,18 @@ function GamePage({
         }
         if (parts.length > 0) {
             modeDisplay += ` (${parts.join(', ')})`;
+        }
+    }
+
+    if (session.mode === GameMode.LimitedTime && session.limitedTimeConfig) {
+        const mins = Math.floor(session.limitedTimeConfig.gameTimeLimit / 60);
+        const secs = session.limitedTimeConfig.gameTimeLimit % 60;
+        if (mins > 0 && secs > 0) {
+            modeDisplay += ` (${mins}分${secs}秒)`;
+        } else if (mins > 0) {
+            modeDisplay += ` (${mins}分钟)`;
+        } else {
+            modeDisplay += ` (${secs}秒)`;
         }
     }
 
@@ -133,6 +148,14 @@ function GamePage({
         ? 'timer-display'
         : 'current-time-display';
 
+    const formatGameTime = (seconds: number): string => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return mins > 0 ? `${mins}:${secs.toString().padStart(2, '0')}` : `${secs}s`;
+    };
+
+    const isGameTimeWarning = session.mode === GameMode.LimitedTime && gameRemainingTime <= 30;
+
     return (
         <div className="game-container">
             <header className="game-header">
@@ -147,7 +170,15 @@ function GamePage({
 
             {session.isActive && (
                 <div className="game-status-bar">
-                    <span>得分: {session.score}</span>
+                    <span id="score-display">得分: {session.score}</span>
+                    {session.mode === GameMode.LimitedTime && (
+                        <span
+                            id="game-time-display"
+                            className={`game-time-display ${isGameTimeWarning ? 'timer-warning' : ''}`}
+                        >
+                            {formatGameTime(gameRemainingTime)}
+                        </span>
+                    )}
                     <span
                         id={timerId}
                         className={`timer-display ${isTimerWarning ? 'timer-warning' : ''}`}
@@ -207,7 +238,7 @@ function GamePage({
                         >
                             发送
                         </button>
-                        {session.mode === GameMode.Endless && (
+                        {(session.mode === GameMode.Endless || session.mode === GameMode.LimitedTime) && (
                             <button
                                 className="btn btn-secondary"
                                 id="giveup-btn"

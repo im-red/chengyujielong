@@ -1,8 +1,8 @@
-# Endless Mode Scoring Rules
+# Endless Mode & Limited-Time Mode Scoring Rules
 
 ## Overview
 
-The endless mode uses a time-based scoring system that rewards faster responses. Players earn points based on how quickly they submit a correct idiom answer.
+The endless mode and limited-time mode use a time-based scoring system that rewards faster responses. Players earn points based on how quickly they submit a correct idiom answer.
 
 ## Scoring Table
 
@@ -41,6 +41,24 @@ When a player chooses to give up during their turn:
 - The timer stops when the player submits their answer
 - Only correct submissions earn points; wrong submissions do not affect the score
 
+## Game Modes
+
+### Endless Mode
+
+- No time limit for the entire game
+- Game continues indefinitely until the player decides to stop
+- Player can give up on any turn
+- Turn time is displayed on the right side of the status bar
+
+### Limited-Time Mode
+
+- Game has a total time limit (configurable before starting)
+- Game ends automatically when the time limit is reached
+- Player can give up on any turn (same penalty as endless mode)
+- **Remaining game time** is displayed in the **middle** of the status bar
+- Turn time is displayed on the right side of the status bar
+- Game time warning (red color) when remaining time ≤ 30 seconds
+
 ## Example Scenarios
 
 ### Scenario 1: Fast Response
@@ -63,8 +81,14 @@ When a player chooses to give up during their turn:
 2. Player cannot think of a response and gives up
 3. Score: -10 points
 
+### Scenario 5: Limited-Time Mode Game End
+1. Player starts a 2-minute limited-time game
+2. Player scores 50 points in various turns
+3. When the 2-minute timer reaches 0, the game ends
+4. Final score: 50 points
+
 ## Notes
 
 - The scoring system encourages quick thinking while still allowing reasonable time for consideration
 - Negative scores are possible if a player gives up multiple times
-- The scoring only applies to endless mode; challenge mode may have different scoring rules
+- The scoring applies to endless mode and limited-time mode; challenge mode uses a fixed +10 points per correct answer

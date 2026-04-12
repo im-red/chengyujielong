@@ -4,15 +4,16 @@ import { App as CapacitorApp } from '@capacitor/app';
 import type { PluginListenerHandle } from '@capacitor/core';
 import { Capacitor } from '@capacitor/core';
 import { useGameState } from './hooks/useGameState';
-import { GameMode, ChallengeConfig, GameMessage } from './types';
+import { GameMode, ChallengeConfig, GameMessage, LimitedTimeConfig } from './types';
 import { idiomLib } from './idiomLib';
 import HomePage from './components/HomePage';
 import GamePage from './components/GamePage';
 import ChallengeConfigPage from './components/ChallengeConfigPage';
+import LimitedTimeConfigPage from './components/LimitedTimeConfigPage';
 import DetailModal from './components/DetailModal';
 import CandidatesModal from './components/CandidatesModal';
 
-type ViewType = 'home' | 'game' | 'challengeConfig';
+type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig';
 
 function App() {
     const [view, setView] = useState<ViewType>('home');
@@ -20,7 +21,7 @@ function App() {
     const [detailModalIdiom, setDetailModalIdiom] = useState<string | null>(null);
     const [candidatesModalIdiom, setCandidatesModalIdiom] = useState<string | null>(null);
 
-    const handleStartGame = useCallback(async (mode: GameMode, config?: ChallengeConfig) => {
+    const handleStartGame = useCallback(async (mode: GameMode, config?: ChallengeConfig | LimitedTimeConfig) => {
         gameActions.startNewGame(mode, config);
         setView('game');
         try {
@@ -42,6 +43,8 @@ function App() {
         if (view === 'game') {
             setView('home');
         } else if (view === 'challengeConfig') {
+            setView('home');
+        } else if (view === 'limitedTimeConfig') {
             setView('home');
         }
     }, [view, detailModalIdiom, candidatesModalIdiom]);
@@ -65,6 +68,10 @@ function App() {
                     return;
                 }
                 if (view === 'challengeConfig') {
+                    setView('home');
+                    return;
+                }
+                if (view === 'limitedTimeConfig') {
                     setView('home');
                     return;
                 }
@@ -112,6 +119,10 @@ function App() {
         setView('challengeConfig');
     }, []);
 
+    const handleSelectLimitedTimeMode = useCallback(() => {
+        setView('limitedTimeConfig');
+    }, []);
+
     const handleSelectEndlessMode = useCallback(() => {
         handleStartGame(GameMode.Endless);
     }, [handleStartGame]);
@@ -123,6 +134,7 @@ function App() {
                     sessions={gameState.sessions}
                     onSelectEndlessMode={handleSelectEndlessMode}
                     onSelectChallengeMode={handleSelectChallengeMode}
+                    onSelectLimitedTimeMode={handleSelectLimitedTimeMode}
                     onDeleteSession={gameActions.deleteSession}
                     onClearAllSessions={gameActions.clearAllSessions}
                 />
@@ -135,11 +147,19 @@ function App() {
                 />
             )}
 
+            {view === 'limitedTimeConfig' && (
+                <LimitedTimeConfigPage
+                    onBack={() => setView('home')}
+                    onStartGame={(config) => handleStartGame(GameMode.LimitedTime, config)}
+                />
+            )}
+
             {view === 'game' && gameState.currentSession && (
                 <GamePage
                     session={gameState.currentSession}
                     remainingTime={gameState.remainingTime}
                     currentTurnStartTime={gameState.currentTurnStartTime}
+                    gameRemainingTime={gameState.gameRemainingTime}
                     onBack={() => setView('home')}
                     onSubmitIdiom={gameActions.submitIdiom}
                     onGiveUp={gameActions.giveUp}

@@ -475,6 +475,18 @@ body {
   animation: pulse 0.5s infinite;
 }
 
+.game-status-bar .game-time-display {
+  font-weight: 600;
+  color: var(--primary);
+  min-width: 60px;
+  text-align: center;
+}
+
+.game-status-bar .game-time-display.timer-warning {
+  color: var(--error);
+  animation: pulse 0.5s infinite;
+}
+
 @keyframes pulse {
 
   0%,

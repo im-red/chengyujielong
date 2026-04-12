@@ -16,12 +16,17 @@ export enum RecordType {
 
 export enum GameMode {
     Endless = 'endless',
-    Challenge = 'challenge'
+    Challenge = 'challenge',
+    LimitedTime = 'limitedTime'
 }
 
 export interface ChallengeConfig {
     lives: number; // 0 means unlimited (classic mode)
     timeLimit: number; // 0 means no time limit (in seconds)
+}
+
+export interface LimitedTimeConfig {
+    gameTimeLimit: number; // total game time limit in seconds
 }
 
 export interface GameMessage {
@@ -42,9 +47,11 @@ export interface GameSession {
     score: number;
     lives?: number; // for challenge mode
     maxLives?: number; // for challenge mode
-    timeLimit?: number; // for challenge mode (seconds)
+    timeLimit?: number; // for challenge mode (per-turn time limit in seconds)
+    gameTimeLimit?: number; // for limited-time mode (total game time limit in seconds)
     isActive: boolean;
     challengeConfig?: ChallengeConfig; // store original config
+    limitedTimeConfig?: LimitedTimeConfig; // store original config
 }
 
 export interface GameState {

@@ -4,6 +4,7 @@ interface HomePageProps {
     sessions: GameSession[];
     onSelectEndlessMode: () => void;
     onSelectChallengeMode: () => void;
+    onSelectLimitedTimeMode: () => void;
     onDeleteSession: (sessionId: string) => void;
     onClearAllSessions: () => void;
 }
@@ -12,6 +13,7 @@ function HomePage({
     sessions,
     onSelectEndlessMode,
     onSelectChallengeMode,
+    onSelectLimitedTimeMode,
     onDeleteSession,
     onClearAllSessions
 }: HomePageProps) {
@@ -43,6 +45,12 @@ function HomePage({
                         <div className="mode-icon">♾️</div>
                         <h3>无尽模式</h3>
                         <p>可放弃，永不结束</p>
+                    </div>
+
+                    <div className="mode-card" data-mode={GameMode.LimitedTime} onClick={onSelectLimitedTimeMode}>
+                        <div className="mode-icon">⏱️</div>
+                        <h3>限时模式</h3>
+                        <p>限时挑战，争分夺秒</p>
                     </div>
 
                     <div className="mode-card" data-mode={GameMode.Challenge} onClick={onSelectChallengeMode}>
@@ -90,7 +98,8 @@ function SessionCard({ session, onDelete }: { session: GameSession; onDelete: ()
     const date = new Date(session.startTime);
     const modeNames = {
         [GameMode.Endless]: '无尽',
-        [GameMode.Challenge]: '挑战'
+        [GameMode.Challenge]: '挑战',
+        [GameMode.LimitedTime]: '限时'
     };
 
     let configStr = '';
@@ -104,6 +113,18 @@ function SessionCard({ session, onDelete }: { session: GameSession; onDelete: ()
         }
         if (parts.length > 0) {
             configStr = ` (${parts.join(', ')})`;
+        }
+    }
+
+    if (session.mode === GameMode.LimitedTime && session.limitedTimeConfig) {
+        const mins = Math.floor(session.limitedTimeConfig.gameTimeLimit / 60);
+        const secs = session.limitedTimeConfig.gameTimeLimit % 60;
+        if (mins > 0 && secs > 0) {
+            configStr = ` (${mins}分${secs}秒)`;
+        } else if (mins > 0) {
+            configStr = ` (${mins}分钟)`;
+        } else {
+            configStr = ` (${secs}秒)`;
         }
     }
 
