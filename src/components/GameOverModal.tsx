@@ -5,11 +5,11 @@ interface GameOverModalProps {
     isOpen: boolean;
     score: number;
     mode: GameMode;
-    onNewGame: () => void;
+    onClose: () => void;
     onGoHome: () => void;
 }
 
-function GameOverModal({ isOpen, score, mode, onNewGame, onGoHome }: GameOverModalProps) {
+function GameOverModal({ isOpen, score, mode, onClose, onGoHome }: GameOverModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
 
     const getModeName = (mode: GameMode): string => {
@@ -28,15 +28,15 @@ function GameOverModal({ isOpen, score, mode, onNewGame, onGoHome }: GameOverMod
     const handleBackdropClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {
         if (e.target === modalRef.current) {
             e.preventDefault();
-            onGoHome();
+            onClose();
         }
-    }, [onGoHome]);
+    }, [onClose]);
 
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
         if (e.key === 'Escape') {
-            onGoHome();
+            onClose();
         }
-    }, [onGoHome]);
+    }, [onClose]);
 
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
         if (e.target === modalRef.current) {
@@ -72,6 +72,14 @@ function GameOverModal({ isOpen, score, mode, onNewGame, onGoHome }: GameOverMod
             onTouchStart={handleTouchStart}
         >
             <div className="modal-content game-over-modal-content">
+                <button
+                    className="close-modal"
+                    id="game-over-close-btn"
+                    onClick={onClose}
+                    aria-label="关闭"
+                >
+                    ×
+                </button>
                 <h2 className="game-over-title">游戏结束</h2>
                 <div className="game-over-mode">{getModeName(mode)}</div>
                 <div className="game-over-score">
@@ -79,13 +87,6 @@ function GameOverModal({ isOpen, score, mode, onNewGame, onGoHome }: GameOverMod
                     <span className="game-over-score-value">{score}</span>
                 </div>
                 <div className="game-over-buttons">
-                    <button
-                        className="btn btn-primary"
-                        id="new-game-btn"
-                        onClick={onNewGame}
-                    >
-                        再来一局
-                    </button>
                     <button
                         className="btn btn-secondary"
                         id="home-btn"

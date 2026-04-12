@@ -51,7 +51,10 @@ function App() {
             const handle = await CapacitorApp.addListener('backButton', ({ canGoBack }) => {
                 if (isGameOverModalOpen) {
                     setIsGameOverModalOpen(false);
-                    setView('home');
+                    if (gameState.currentSession) {
+                        setSelectedSessionId(gameState.currentSession.id);
+                        setView('historyDetail');
+                    }
                     return;
                 }
                 if (detailModalIdiom) {
@@ -109,7 +112,7 @@ function App() {
                 listener.remove();
             }
         };
-    }, [view, detailModalIdiom, candidatesModalIdiom, isGameOverModalOpen]);
+    }, [view, detailModalIdiom, candidatesModalIdiom, isGameOverModalOpen, gameState.currentSession]);
 
     const handleShowDetail = useCallback((idiom: string, searchQuery?: string) => {
         setDetailModalIdiom(idiom);
@@ -150,12 +153,13 @@ function App() {
         setIsGameOverModalOpen(true);
     }, []);
 
-    const handleGameOverNewGame = useCallback(() => {
+    const handleGameOverClose = useCallback(() => {
         setIsGameOverModalOpen(false);
         if (gameState.currentSession) {
-            handleStartGame(gameState.currentSession.mode);
+            setSelectedSessionId(gameState.currentSession.id);
+            setView('historyDetail');
         }
-    }, [gameState.currentSession, handleStartGame]);
+    }, [gameState.currentSession]);
 
     const handleGameOverGoHome = useCallback(() => {
         setIsGameOverModalOpen(false);
@@ -257,7 +261,7 @@ function App() {
                 isOpen={isGameOverModalOpen}
                 score={gameState.currentSession?.score ?? 0}
                 mode={gameState.currentSession?.mode ?? GameMode.Endless}
-                onNewGame={handleGameOverNewGame}
+                onClose={handleGameOverClose}
                 onGoHome={handleGameOverGoHome}
             />
         </>

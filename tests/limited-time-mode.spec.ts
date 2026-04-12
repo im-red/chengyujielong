@@ -521,17 +521,14 @@ test.describe('Limited-Time Mode - Game Over', () => {
         const gameOverModal = page.locator('#game-over-modal.show');
         await expect(gameOverModal).toBeVisible({ timeout: 5000 });
 
-        const newGameBtn = page.locator('#new-game-btn');
-        await expect(newGameBtn).toBeVisible();
-
-        const homeBtn = page.locator('#home-btn');
-        await expect(homeBtn).toBeVisible();
+        const closeBtn = page.locator('#game-over-close-btn');
+        await expect(closeBtn).toBeVisible();
 
         console.log('[Test] ✓ Game over modal displayed correctly');
     });
 
-    test('should restart game when clicking new game button', async ({ page }) => {
-        console.log('[Test] Testing new game restart');
+    test('should navigate to history detail when clicking close button', async ({ page }) => {
+        console.log('[Test] Testing close button navigation');
 
         test.setTimeout(60000);
 
@@ -539,13 +536,14 @@ test.describe('Limited-Time Mode - Game Over', () => {
 
         await page.waitForTimeout(35000);
 
-        const newGameBtn = page.locator('#new-game-btn');
-        await newGameBtn.click({ timeout: 10000 });
-        await page.waitForSelector('#idiom-input', { timeout: 5000 });
+        const closeBtn = page.locator('#game-over-close-btn');
+        await closeBtn.click({ timeout: 10000 });
+        await page.waitForSelector('.history-detail-container', { timeout: 5000 });
 
-        const input = page.locator('#idiom-input');
-        await expect(input).toBeVisible();
-        console.log('[Test] ✓ New game started');
+        const header = page.locator('.game-header h1');
+        const headerText = await header.textContent();
+        expect(headerText).toContain('限时');
+        console.log('[Test] ✓ Navigated to history detail');
     });
 
     test('should go to home when clicking home button', async ({ page }) => {
@@ -578,13 +576,13 @@ test.describe('Limited-Time Mode - History', () => {
 
         await page.waitForTimeout(35000);
 
-        const homeBtn = page.locator('#home-btn');
-        await homeBtn.click({ timeout: 10000 });
-        await page.waitForSelector('.session-card', { timeout: 5000 });
+        const closeBtn = page.locator('#game-over-close-btn');
+        await closeBtn.click({ timeout: 10000 });
+        await page.waitForSelector('.history-detail-container', { timeout: 5000 });
 
-        const sessionCard = page.locator('.session-card').first();
-        const sessionText = await sessionCard.textContent();
-        expect(sessionText).toContain('限时');
+        const header = page.locator('.game-header h1');
+        const headerText = await header.textContent();
+        expect(headerText).toContain('限时');
         console.log('[Test] ✓ Game saved to history');
     });
 
@@ -597,13 +595,13 @@ test.describe('Limited-Time Mode - History', () => {
 
         await page.waitForTimeout(35000);
 
-        const homeBtn = page.locator('#home-btn');
-        await homeBtn.click({ timeout: 10000 });
-        await page.waitForSelector('.session-card', { timeout: 5000 });
+        const closeBtn = page.locator('#game-over-close-btn');
+        await closeBtn.click({ timeout: 10000 });
+        await page.waitForSelector('.history-detail-container', { timeout: 5000 });
 
-        const sessionMode = page.locator('.session-mode').first();
-        const modeText = await sessionMode.textContent();
-        expect(modeText).toContain('限时');
+        const header = page.locator('.game-header h1');
+        const headerText = await header.textContent();
+        expect(headerText).toContain('限时');
         console.log('[Test] ✓ Correct mode name in history');
     });
 });
