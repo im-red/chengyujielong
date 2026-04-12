@@ -83,6 +83,7 @@ Context menus must be used for *item-specific actions* only, never for primary n
   - Minimum touch target: `44x44px`.
   - Use `flex-shrink: 0` to prevent shrinking in flexbox.
   - No `:hover` states; use `:active` with opacity `0.7` for tactile feedback.
+  - Back Button: Use a single `←` character (left arrow) for consistency.
 - **Safe Area:** Use `padding-top: max(1rem, env(safe-area-inset-top))` to handle device notches.
 - **Consistency:** All screens (root, sub-pages, trash bin) must use identical header geometry.
 

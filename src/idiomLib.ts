@@ -191,6 +191,16 @@ class IdiomLib {
 
         return this.unusedCandidateList.get(lastPinyin) || [];
     }
+
+    getPinyinWithoutTones(idiom: string): string {
+        const pinyin = this.getPinyin(idiom);
+        if (!pinyin) return '';
+        return this.translatePinyin(pinyin);
+    }
+
+    getAllIdioms(): IdiomItem[] {
+        return Array.from(this.idiomMap.values());
+    }
 }
 
 export const idiomLib = new IdiomLib();

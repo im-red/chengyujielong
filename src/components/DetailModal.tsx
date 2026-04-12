@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useRef, useState, useMemo } from 'react';
 import { idiomLib } from '../idiomLib';
 import { PinyinPatch } from '../types';
+import { highlightText } from '../utils';
 
 interface DetailModalProps {
     idiom: string | null;
@@ -8,9 +9,10 @@ interface DetailModalProps {
     onAddPatch: (idiom: string, originalPinyin: string, correctedPinyin: string) => void;
     onRemovePatch: (idiom: string) => void;
     getPatch: (idiom: string) => PinyinPatch | undefined;
+    searchQuery?: string;
 }
 
-function DetailModal({ idiom, onClose, onAddPatch, onRemovePatch, getPatch }: DetailModalProps) {
+function DetailModal({ idiom, onClose, onAddPatch, onRemovePatch, getPatch, searchQuery }: DetailModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
     const isOpen = idiom !== null;
     const [isEditing, setIsEditing] = useState(false);
@@ -20,12 +22,8 @@ function DetailModal({ idiom, onClose, onAddPatch, onRemovePatch, getPatch }: De
     const originalPinyin = item?.pinyin || '';
     const existingPatch = idiom ? getPatch(idiom) : undefined;
 
-    const info = useMemo(() => {
-        if (!idiom || !item) return '';
-        const pinyin = existingPatch ? existingPatch.correctedPinyin : item.pinyin;
-        const patchInfo = existingPatch ? ' (已修正)' : '';
-        return `拼音: ${pinyin}${patchInfo}\n出处: ${item.derivation}\n释义: ${item.explanation}\n例子: ${item.example}`;
-    }, [idiom, item, existingPatch]);
+    const pinyin = existingPatch ? existingPatch.correctedPinyin : (item?.pinyin || '');
+    const patchInfo = existingPatch ? ' (已修正)' : '';
 
     useEffect(() => {
         if (idiom) {
@@ -107,7 +105,7 @@ function DetailModal({ idiom, onClose, onAddPatch, onRemovePatch, getPatch }: De
                 {idiom && (
                     <>
                         <div className="modal-header">
-                            <h2>{idiom}</h2>
+                            <h2>{highlightText(idiom, searchQuery || '', false)}</h2>
                             <button
                                 type="button"
                                 className="close-modal"
@@ -128,7 +126,16 @@ function DetailModal({ idiom, onClose, onAddPatch, onRemovePatch, getPatch }: De
                                 &times;
                             </button>
                         </div>
-                        <div id="modal-body" className="detail-content">{info}</div>
+                        <div id="modal-body" className="detail-content">
+                            {item && (
+                                <>
+                                    <p><strong>拼音:</strong> {highlightText(pinyin, searchQuery || '', false)}{patchInfo}</p>
+                                    <p><strong>出处:</strong> {highlightText(item.derivation, searchQuery || '', false)}</p>
+                                    <p><strong>释义:</strong> {highlightText(item.explanation, searchQuery || '', false)}</p>
+                                    <p><strong>例子:</strong> {highlightText(item.example, searchQuery || '', false)}</p>
+                                </>
+                            )}
+                        </div>
 
                         <div className="pinyin-edit-section">
                             {isEditing ? (

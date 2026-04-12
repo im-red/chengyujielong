@@ -15,14 +15,16 @@ import CandidatesModal from './components/CandidatesModal';
 import GameOverModal from './components/GameOverModal';
 import HistoryDetailPage from './components/HistoryDetailPage';
 import PinyinPatchPage from './components/PinyinPatchPage';
+import IdiomLibraryPage from './components/IdiomLibraryPage';
 
-type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'historyDetail' | 'pinyinPatch';
+type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'historyDetail' | 'pinyinPatch' | 'idiomLibrary';
 
 function App() {
     const [view, setView] = useState<ViewType>('home');
     const [gameState, gameActions] = useGameState();
     const { patches, addPatch, removePatch, clearAllPatches } = usePinyinPatches();
     const [detailModalIdiom, setDetailModalIdiom] = useState<string | null>(null);
+    const [detailModalSearchQuery, setDetailModalSearchQuery] = useState<string>('');
     const [candidatesModalIdiom, setCandidatesModalIdiom] = useState<string | null>(null);
     const [isGameOverModalOpen, setIsGameOverModalOpen] = useState(false);
     const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
@@ -81,6 +83,10 @@ function App() {
                     setView('home');
                     return;
                 }
+                if (view === 'idiomLibrary') {
+                    setView('home');
+                    return;
+                }
                 if (canGoBack) {
                     window.history.back();
                 } else {
@@ -105,8 +111,9 @@ function App() {
         };
     }, [view, detailModalIdiom, candidatesModalIdiom, isGameOverModalOpen]);
 
-    const handleShowDetail = useCallback((idiom: string) => {
+    const handleShowDetail = useCallback((idiom: string, searchQuery?: string) => {
         setDetailModalIdiom(idiom);
+        setDetailModalSearchQuery(searchQuery || '');
     }, []);
 
     const handleShowCandidates = useCallback((idiom: string) => {
@@ -115,6 +122,7 @@ function App() {
 
     const handleCloseDetail = useCallback(() => {
         setDetailModalIdiom(null);
+        setDetailModalSearchQuery('');
     }, []);
 
     const handleCloseCandidates = useCallback(() => {
@@ -167,6 +175,7 @@ function App() {
                     onViewSession={handleViewSession}
                     patchesCount={patches.length}
                     onViewPinyinPatches={() => setView('pinyinPatch')}
+                    onViewIdiomLibrary={() => setView('idiomLibrary')}
                 />
             )}
 
@@ -222,12 +231,20 @@ function App() {
                 />
             )}
 
+            {view === 'idiomLibrary' && (
+                <IdiomLibraryPage
+                    onBack={() => setView('home')}
+                    onShowDetail={handleShowDetail}
+                />
+            )}
+
             <DetailModal
                 idiom={detailModalIdiom}
                 onClose={handleCloseDetail}
                 onAddPatch={addPatch}
                 onRemovePatch={removePatch}
                 getPatch={(idiom) => patches.find(p => p.idiom === idiom)}
+                searchQuery={detailModalSearchQuery}
             />
 
             <CandidatesModal
