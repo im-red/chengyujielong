@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react';
 import { GameSession, GameMode } from '../types';
 
 interface HomePageProps {
@@ -8,6 +9,8 @@ interface HomePageProps {
     onDeleteSession: (sessionId: string) => void;
     onClearAllSessions: () => void;
     onViewSession: (sessionId: string) => void;
+    patchesCount: number;
+    onViewPinyinPatches: () => void;
 }
 
 function HomePage({
@@ -17,8 +20,76 @@ function HomePage({
     onSelectLimitedTimeMode,
     onDeleteSession,
     onClearAllSessions,
-    onViewSession
+    onViewSession,
+    patchesCount,
+    onViewPinyinPatches
 }: HomePageProps) {
+    const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
+    const sideMenuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (sideMenuRef.current && !sideMenuRef.current.contains(event.target as Node)) {
+                setIsSideMenuOpen(false);
+            }
+        };
+        if (isSideMenuOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isSideMenuOpen]);
+
+    useEffect(() => {
+        if (!isSideMenuOpen || !sideMenuRef.current) return;
+
+        const sideMenu = sideMenuRef.current;
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+
+        const handleTouchStart = (e: TouchEvent) => {
+            startX = e.touches[0].clientX;
+            currentX = startX;
+            isDragging = true;
+        };
+
+        const handleTouchMove = (e: TouchEvent) => {
+            if (!isDragging) return;
+            currentX = e.touches[0].clientX;
+            const diff = currentX - startX;
+            if (diff < 0) {
+                const menuWidth = sideMenu.offsetWidth;
+                const translateX = Math.max(diff, -menuWidth);
+                sideMenu.style.transform = `translateX(${translateX}px)`;
+                sideMenu.style.transition = 'none';
+            }
+        };
+
+        const handleTouchEnd = () => {
+            if (!isDragging) return;
+            isDragging = false;
+            const diff = currentX - startX;
+            const menuWidth = sideMenu.offsetWidth;
+            sideMenu.style.transition = '';
+            sideMenu.style.transform = '';
+            if (diff < -menuWidth * 0.3) {
+                setIsSideMenuOpen(false);
+            }
+        };
+
+        sideMenu.addEventListener('touchstart', handleTouchStart, { passive: true });
+        sideMenu.addEventListener('touchmove', handleTouchMove, { passive: true });
+        sideMenu.addEventListener('touchend', handleTouchEnd);
+
+        return () => {
+            sideMenu.removeEventListener('touchstart', handleTouchStart);
+            sideMenu.removeEventListener('touchmove', handleTouchMove);
+            sideMenu.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, [isSideMenuOpen]);
+
     const handleClearHistory = () => {
         if (confirm('确定要清空所有历史记录吗？')) {
             onClearAllSessions();
@@ -31,9 +102,41 @@ function HomePage({
         }
     };
 
+    const handleViewPinyinPatches = () => {
+        setIsSideMenuOpen(false);
+        onViewPinyinPatches();
+    };
+
     return (
         <div className="home-container">
+            {isSideMenuOpen && <div className="side-menu-backdrop" onClick={() => setIsSideMenuOpen(false)} />}
+            <div ref={sideMenuRef} className={`side-menu ${isSideMenuOpen ? 'side-menu--open' : ''}`}>
+                <div className="side-menu-header">
+                    <h2>菜单</h2>
+                    <button
+                        className="side-menu-close"
+                        onClick={() => setIsSideMenuOpen(false)}
+                    >
+                        ×
+                    </button>
+                </div>
+                <div className="side-menu-content">
+                    <button className="side-menu-item" onClick={handleViewPinyinPatches}>
+                        <span className="side-menu-icon">📝</span>
+                        <span>拼音修正</span>
+                        {patchesCount > 0 && <span className="side-menu-badge">{patchesCount}</span>}
+                    </button>
+                </div>
+            </div>
+
             <header className="app-header">
+                <button
+                    className="btn-menu"
+                    onClick={() => setIsSideMenuOpen(true)}
+                    aria-label="打开菜单"
+                >
+                    ☰
+                </button>
                 <div className="header-title">
                     <h1>成语接龙</h1>
                 </div>

@@ -1,4 +1,4 @@
-import { IdiomItem, RecordType } from './types';
+import { IdiomItem, RecordType, PinyinPatch } from './types';
 import idiomsData from '../idiom.json';
 
 class IdiomLib {
@@ -9,9 +9,23 @@ class IdiomLib {
     private testMode: boolean = false;
     private testSequence: string[] = [];
     private testSequenceIndex: number = 0;
+    private patches: Map<string, PinyinPatch> = new Map();
 
     constructor() {
         this.loadIdioms();
+    }
+
+    setPatches(patches: PinyinPatch[]) {
+        this.patches.clear();
+        patches.forEach(p => this.patches.set(p.idiom, p));
+        console.info('[IdiomLib] Applied', patches.length, 'pinyin patches');
+    }
+
+    getPinyin(idiom: string): string {
+        const item = this.idiomMap.get(idiom);
+        if (!item) return '';
+        const patch = this.patches.get(idiom);
+        return patch ? patch.correctedPinyin : item.pinyin;
     }
 
     setTestMode(enabled: boolean, sequence?: string[]) {
@@ -77,11 +91,12 @@ class IdiomLib {
 
         if (history.length > 0) {
             const lastIdiom = history[history.length - 1];
-            const lastItem = this.idiomMap.get(lastIdiom)!;
-            const lastPinyinList = lastItem.pinyin.split(' ').map(p => this.translatePinyin(p));
+            const lastPinyinRaw = this.getPinyin(lastIdiom);
+            const lastPinyinList = lastPinyinRaw.split(' ').map(p => this.translatePinyin(p));
             const lastPinyin = lastPinyinList[lastPinyinList.length - 1];
 
-            const nextPinyinList = item.pinyin.split(' ').map(p => this.translatePinyin(p));
+            const nextPinyinRaw = this.getPinyin(next);
+            const nextPinyinList = nextPinyinRaw.split(' ').map(p => this.translatePinyin(p));
             const firstPinyin = nextPinyinList[0];
 
             if (lastPinyin !== firstPinyin) {
@@ -111,10 +126,8 @@ class IdiomLib {
             lastPinyin = randomKey;
         } else {
             const lastIdiom = history[history.length - 1];
-            const lastItem = this.idiomMap.get(lastIdiom);
-            if (!lastItem) return null;
-
-            const pinyinList = lastItem.pinyin.split(' ').map(p => this.translatePinyin(p));
+            const lastPinyinRaw = this.getPinyin(lastIdiom);
+            const pinyinList = lastPinyinRaw.split(' ').map(p => this.translatePinyin(p));
             lastPinyin = pinyinList[pinyinList.length - 1];
         }
 
@@ -152,24 +165,28 @@ class IdiomLib {
         const item = this.idiomMap.get(idiom);
         if (!item) return '';
 
-        return `拼音: ${item.pinyin}\n出处: ${item.derivation}\n释义: ${item.explanation}\n例子: ${item.example}`;
+        const pinyin = this.getPinyin(idiom);
+        const patch = this.patches.get(idiom);
+        const patchInfo = patch ? ' (已修正)' : '';
+
+        return `拼音: ${pinyin}${patchInfo}\n出处: ${item.derivation}\n释义: ${item.explanation}\n例子: ${item.example}`;
     }
 
     getCandidateList(idiom: string): string[] {
-        const item = this.idiomMap.get(idiom);
-        if (!item) return [];
+        const pinyinRaw = this.getPinyin(idiom);
+        if (!pinyinRaw) return [];
 
-        const pinyinList = item.pinyin.split(' ').map(p => this.translatePinyin(p));
+        const pinyinList = pinyinRaw.split(' ').map(p => this.translatePinyin(p));
         const lastPinyin = pinyinList[pinyinList.length - 1];
 
         return this.candidateList.get(lastPinyin) || [];
     }
 
     getUnusedCandidateList(idiom: string): string[] {
-        const item = this.idiomMap.get(idiom);
-        if (!item) return [];
+        const pinyinRaw = this.getPinyin(idiom);
+        if (!pinyinRaw) return [];
 
-        const pinyinList = item.pinyin.split(' ').map(p => this.translatePinyin(p));
+        const pinyinList = pinyinRaw.split(' ').map(p => this.translatePinyin(p));
         const lastPinyin = pinyinList[pinyinList.length - 1];
 
         return this.unusedCandidateList.get(lastPinyin) || [];

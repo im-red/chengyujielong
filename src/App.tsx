@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { App as CapacitorApp } from '@capacitor/app';
 import type { PluginListenerHandle } from '@capacitor/core';
-import { Capacitor } from '@capacitor/core';
 import { useGameState } from './hooks/useGameState';
-import { GameMode, ChallengeConfig, GameMessage, LimitedTimeConfig } from './types';
+import { usePinyinPatches } from './hooks/usePinyinPatches';
+import { GameMode, ChallengeConfig, LimitedTimeConfig } from './types';
 import { idiomLib } from './idiomLib';
 import HomePage from './components/HomePage';
 import GamePage from './components/GamePage';
@@ -14,16 +14,22 @@ import DetailModal from './components/DetailModal';
 import CandidatesModal from './components/CandidatesModal';
 import GameOverModal from './components/GameOverModal';
 import HistoryDetailPage from './components/HistoryDetailPage';
+import PinyinPatchPage from './components/PinyinPatchPage';
 
-type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'historyDetail';
+type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'historyDetail' | 'pinyinPatch';
 
 function App() {
     const [view, setView] = useState<ViewType>('home');
     const [gameState, gameActions] = useGameState();
+    const { patches, addPatch, removePatch, clearAllPatches } = usePinyinPatches();
     const [detailModalIdiom, setDetailModalIdiom] = useState<string | null>(null);
     const [candidatesModalIdiom, setCandidatesModalIdiom] = useState<string | null>(null);
     const [isGameOverModalOpen, setIsGameOverModalOpen] = useState(false);
     const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+
+    useEffect(() => {
+        idiomLib.setPatches(patches);
+    }, [patches]);
 
     const handleStartGame = useCallback(async (mode: GameMode, config?: ChallengeConfig | LimitedTimeConfig) => {
         gameActions.startNewGame(mode, config);
@@ -34,32 +40,6 @@ function App() {
             console.warn('Unable to trigger haptic feedback', error);
         }
     }, [gameActions]);
-
-    const handleBack = useCallback(() => {
-        if (isGameOverModalOpen) {
-            setIsGameOverModalOpen(false);
-            setView('home');
-            return;
-        }
-        if (detailModalIdiom) {
-            setDetailModalIdiom(null);
-            return;
-        }
-        if (candidatesModalIdiom) {
-            setCandidatesModalIdiom(null);
-            return;
-        }
-        if (view === 'game') {
-            setView('home');
-        } else if (view === 'challengeConfig') {
-            setView('home');
-        } else if (view === 'limitedTimeConfig') {
-            setView('home');
-        } else if (view === 'historyDetail') {
-            setSelectedSessionId(null);
-            setView('home');
-        }
-    }, [view, detailModalIdiom, candidatesModalIdiom, isGameOverModalOpen]);
 
     useEffect(() => {
         let listener: PluginListenerHandle | undefined;
@@ -94,6 +74,10 @@ function App() {
                 }
                 if (view === 'historyDetail') {
                     setSelectedSessionId(null);
+                    setView('home');
+                    return;
+                }
+                if (view === 'pinyinPatch') {
                     setView('home');
                     return;
                 }
@@ -181,6 +165,8 @@ function App() {
                     onDeleteSession={gameActions.deleteSession}
                     onClearAllSessions={gameActions.clearAllSessions}
                     onViewSession={handleViewSession}
+                    patchesCount={patches.length}
+                    onViewPinyinPatches={() => setView('pinyinPatch')}
                 />
             )}
 
@@ -227,9 +213,21 @@ function App() {
                 />
             )}
 
+            {view === 'pinyinPatch' && (
+                <PinyinPatchPage
+                    patches={patches}
+                    onBack={() => setView('home')}
+                    onRemovePatch={removePatch}
+                    onClearAllPatches={clearAllPatches}
+                />
+            )}
+
             <DetailModal
                 idiom={detailModalIdiom}
                 onClose={handleCloseDetail}
+                onAddPatch={addPatch}
+                onRemovePatch={removePatch}
+                getPatch={(idiom) => patches.find(p => p.idiom === idiom)}
             />
 
             <CandidatesModal

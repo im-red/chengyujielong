@@ -169,7 +169,7 @@ function GamePage({
     return (
         <div className="game-container">
             <header className="game-header">
-                <button className="btn-back" onClick={onBack}>←</button>
+                <button id="back-btn" className="btn-back" onClick={onBack}>←</button>
                 <div className="header-title">
                     <h1>{modeDisplay}</h1>
                     {session.lives !== undefined && (

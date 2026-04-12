@@ -61,3 +61,10 @@ export interface GameState {
     sessions: GameSession[];
     lastMessageTime: number;
 }
+
+export interface PinyinPatch {
+    idiom: string;
+    originalPinyin: string;
+    correctedPinyin: string;
+    createdAt: number;
+}
