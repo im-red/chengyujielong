@@ -214,24 +214,37 @@ function GamePage({
             {session.isActive ? (
                 <div className="input-section">
                     <div className="input-group">
-                        <input
-                            ref={inputRef}
-                            type="text"
-                            id="idiom-input"
-                            placeholder="请输入成语接龙..."
-                            autoComplete="off"
-                            value={input}
-                            onChange={(e) => {
-                                if (!isSubmitting) setInput(e.target.value);
-                            }}
-                            onKeyDown={(e) => {
-                                if (isSubmitting) {
-                                    e.preventDefault();
-                                    return;
-                                }
-                                handleKeyDown(e);
-                            }}
-                        />
+                        <div className="input-wrapper">
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                id="idiom-input"
+                                placeholder="请输入成语接龙..."
+                                autoComplete="off"
+                                value={input}
+                                onChange={(e) => {
+                                    if (!isSubmitting) setInput(e.target.value);
+                                }}
+                                onKeyDown={(e) => {
+                                    if (isSubmitting) {
+                                        e.preventDefault();
+                                        return;
+                                    }
+                                    handleKeyDown(e);
+                                }}
+                            />
+                            {input && !isSubmitting && (
+                                <button
+                                    className="input-clear-btn"
+                                    onClick={() => setInput('')}
+                                    onMouseDown={(e) => e.preventDefault()}
+                                    type="button"
+                                    aria-label="清空输入"
+                                >
+                                    ×
+                                </button>
+                            )}
+                        </div>
                         <button
                             className="btn btn-primary"
                             id="submit-btn"
