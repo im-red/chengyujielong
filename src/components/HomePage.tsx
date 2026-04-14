@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { GameSession, GameMode } from '../types';
 
 interface HomePageProps {
@@ -15,6 +15,8 @@ interface HomePageProps {
     onViewTrend: () => void;
     onViewFavorites: () => void;
     favoritesCount: number;
+    isSideMenuOpen: boolean;
+    setIsSideMenuOpen: (open: boolean) => void;
 }
 
 function HomePage({
@@ -30,9 +32,10 @@ function HomePage({
     onViewIdiomLibrary,
     onViewTrend,
     onViewFavorites,
-    favoritesCount
+    favoritesCount,
+    isSideMenuOpen,
+    setIsSideMenuOpen
 }: HomePageProps) {
-    const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
     const sideMenuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {

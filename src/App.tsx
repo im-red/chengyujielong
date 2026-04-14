@@ -33,6 +33,7 @@ function App() {
     const [candidatesModalIdiom, setCandidatesModalIdiom] = useState<string | null>(null);
     const [isGameOverModalOpen, setIsGameOverModalOpen] = useState(false);
     const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+    const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
 
     useEffect(() => {
         idiomLib.setPatches(patches);
@@ -66,6 +67,10 @@ function App() {
 
         const setup = async () => {
             const handle = await CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+                if (isSideMenuOpen) {
+                    setIsSideMenuOpen(false);
+                    return;
+                }
                 if (isGameOverModalOpen) {
                     setIsGameOverModalOpen(false);
                     if (gameState.currentSession) {
@@ -137,7 +142,7 @@ function App() {
                 listener.remove();
             }
         };
-    }, [view, detailModalIdiom, candidatesModalIdiom, isGameOverModalOpen, gameState.currentSession]);
+    }, [view, detailModalIdiom, candidatesModalIdiom, isGameOverModalOpen, gameState.currentSession, isSideMenuOpen]);
 
     const handleShowDetail = useCallback((idiom: string, searchQuery?: string) => {
         setDetailModalIdiom(idiom);
@@ -208,6 +213,8 @@ function App() {
                     onViewTrend={() => setView('trend')}
                     onViewFavorites={() => setView('favorites')}
                     favoritesCount={favoritesCount}
+                    isSideMenuOpen={isSideMenuOpen}
+                    setIsSideMenuOpen={setIsSideMenuOpen}
                 />
             )}
 
