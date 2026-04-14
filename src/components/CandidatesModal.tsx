@@ -5,11 +5,17 @@ interface CandidatesModalProps {
     idiom: string | null;
     onClose: () => void;
     onShowDetail: (idiom: string) => void;
+    isFavorite: (idiom: string) => boolean;
+    toggleFavorite: (idiom: string) => void;
 }
 
-function CandidatesModal({ idiom, onClose, onShowDetail }: CandidatesModalProps) {
+function CandidatesModal({ idiom, onClose, onShowDetail, isFavorite, toggleFavorite }: CandidatesModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
     const [selectedType, setSelectedType] = useState<string | null>(null);
+    const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const longPressTriggeredRef = useRef(false);
+    const isScrollingRef = useRef(false);
+    const touchStartPosRef = useRef<{ x: number; y: number } | null>(null);
     const isOpen = idiom !== null;
 
     const { allCandidates, usedCandidates, unusedCandidates } = useMemo(() => {
@@ -62,9 +68,62 @@ function CandidatesModal({ idiom, onClose, onShowDetail }: CandidatesModalProps)
     };
 
     const handleCandidateClick = (candidateIdiom: string) => {
+        if (longPressTriggeredRef.current || isScrollingRef.current) {
+            longPressTriggeredRef.current = false;
+            isScrollingRef.current = false;
+            return;
+        }
         const input = document.getElementById('idiom-input') as HTMLInputElement;
         if (input) input.focus();
         onShowDetail(candidateIdiom);
+    };
+
+    const handleCandidateTouchStart = (candidateIdiom: string, e: React.TouchEvent) => {
+        longPressTriggeredRef.current = false;
+        isScrollingRef.current = false;
+        const touch = e.touches[0];
+        touchStartPosRef.current = { x: touch.clientX, y: touch.clientY };
+        longPressTimerRef.current = setTimeout(() => {
+            toggleFavorite(candidateIdiom);
+            longPressTriggeredRef.current = true;
+        }, 500);
+    };
+
+    const handleCandidateTouchMove = (e: React.TouchEvent) => {
+        if (!touchStartPosRef.current) return;
+        const touch = e.touches[0];
+        const deltaX = Math.abs(touch.clientX - touchStartPosRef.current.x);
+        const deltaY = Math.abs(touch.clientY - touchStartPosRef.current.y);
+        if (deltaX > 10 || deltaY > 10) {
+            isScrollingRef.current = true;
+            if (longPressTimerRef.current) {
+                clearTimeout(longPressTimerRef.current);
+                longPressTimerRef.current = null;
+            }
+        }
+    };
+
+    const handleCandidateTouchEnd = () => {
+        if (longPressTimerRef.current) {
+            clearTimeout(longPressTimerRef.current);
+            longPressTimerRef.current = null;
+        }
+        touchStartPosRef.current = null;
+    };
+
+    const handleCandidateMouseDown = (candidateIdiom: string) => {
+        longPressTriggeredRef.current = false;
+        longPressTimerRef.current = setTimeout(() => {
+            toggleFavorite(candidateIdiom);
+            longPressTriggeredRef.current = true;
+        }, 500);
+    };
+
+    const handleCandidateMouseUp = () => {
+        if (longPressTimerRef.current) {
+            clearTimeout(longPressTimerRef.current);
+            longPressTimerRef.current = null;
+        }
     };
 
     const getCandidatesForType = () => {
@@ -161,14 +220,31 @@ function CandidatesModal({ idiom, onClose, onShowDetail }: CandidatesModalProps)
                                         {candidates.length > 0 ? (
                                             candidates.map(c => {
                                                 const isThisUsed = usedCandidates.includes(c);
+                                                const isThisFavorite = isFavorite(c);
                                                 return (
                                                     <div
                                                         key={c}
-                                                        className={`candidate-item ${isThisUsed ? 'used-item' : ''}`}
-                                                        onMouseDown={(e) => e.preventDefault()}
-                                                        onClick={() => handleCandidateClick(c)}
+                                                        className={`candidate-item ${isThisUsed ? 'used-item' : ''} ${isThisFavorite ? 'favorite-item' : ''}`}
+                                                        onMouseDown={(e) => {
+                                                            e.preventDefault();
+                                                            handleCandidateMouseDown(c);
+                                                        }}
+                                                        onMouseUp={handleCandidateMouseUp}
+                                                        onMouseLeave={handleCandidateMouseUp}
+                                                        onTouchStart={(e) => {
+                                                            e.preventDefault();
+                                                            handleCandidateTouchStart(c, e);
+                                                        }}
+                                                        onTouchMove={(e) => {
+                                                            handleCandidateTouchMove(e);
+                                                        }}
+                                                        onTouchEnd={(e) => {
+                                                            e.preventDefault();
+                                                            handleCandidateTouchEnd();
+                                                            handleCandidateClick(c);
+                                                        }}
                                                     >
-                                                        {c}
+                                                        <span className="candidate-text">{c}</span>
                                                     </div>
                                                 );
                                             })

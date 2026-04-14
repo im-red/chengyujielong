@@ -13,6 +13,8 @@ interface HomePageProps {
     onViewPinyinPatches: () => void;
     onViewIdiomLibrary: () => void;
     onViewTrend: () => void;
+    onViewFavorites: () => void;
+    favoritesCount: number;
 }
 
 function HomePage({
@@ -26,7 +28,9 @@ function HomePage({
     patchesCount,
     onViewPinyinPatches,
     onViewIdiomLibrary,
-    onViewTrend
+    onViewTrend,
+    onViewFavorites,
+    favoritesCount
 }: HomePageProps) {
     const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
     const sideMenuRef = useRef<HTMLDivElement>(null);
@@ -121,6 +125,11 @@ function HomePage({
         onViewTrend();
     };
 
+    const handleViewFavorites = () => {
+        setIsSideMenuOpen(false);
+        onViewFavorites();
+    };
+
     return (
         <div className="home-container">
             {isSideMenuOpen && <div className="side-menu-backdrop" onClick={() => setIsSideMenuOpen(false)} />}
@@ -135,6 +144,11 @@ function HomePage({
                     </button>
                 </div>
                 <div className="side-menu-content">
+                    <button className="side-menu-item" onClick={handleViewFavorites}>
+                        <span className="side-menu-icon">⭐</span>
+                        <span>收藏夹</span>
+                        {favoritesCount > 0 && <span className="side-menu-badge">{favoritesCount}</span>}
+                    </button>
                     <button className="side-menu-item" onClick={handleViewTrend}>
                         <span className="side-menu-icon">📈</span>
                         <span>成绩趋势</span>

@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef, useState, useMemo } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { idiomLib } from '../idiomLib';
 import { PinyinPatch } from '../types';
 import { highlightText } from '../utils';
@@ -10,9 +10,11 @@ interface DetailModalProps {
     onRemovePatch: (idiom: string) => void;
     getPatch: (idiom: string) => PinyinPatch | undefined;
     searchQuery?: string;
+    isFavorite: (idiom: string) => boolean;
+    toggleFavorite: (idiom: string) => void;
 }
 
-function DetailModal({ idiom, onClose, onAddPatch, onRemovePatch, getPatch, searchQuery }: DetailModalProps) {
+function DetailModal({ idiom, onClose, onAddPatch, onRemovePatch, getPatch, searchQuery, isFavorite, toggleFavorite }: DetailModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
     const isOpen = idiom !== null;
     const [isEditing, setIsEditing] = useState(false);
@@ -105,7 +107,18 @@ function DetailModal({ idiom, onClose, onAddPatch, onRemovePatch, getPatch, sear
                 {idiom && (
                     <>
                         <div className="modal-header">
-                            <h2>{highlightText(idiom, searchQuery || '', false)}</h2>
+                            <div className="modal-header-title">
+                                <h2>{highlightText(idiom, searchQuery || '', false)}</h2>
+                                <button
+                                    type="button"
+                                    className={`favorite-btn ${isFavorite(idiom) ? 'favorited' : ''}`}
+                                    onClick={() => toggleFavorite(idiom)}
+                                    onMouseDown={(e) => e.preventDefault()}
+                                    title={isFavorite(idiom) ? '取消收藏' : '添加收藏'}
+                                >
+                                    {isFavorite(idiom) ? '★' : '☆'}
+                                </button>
+                            </div>
                             <button
                                 type="button"
                                 className="close-modal"

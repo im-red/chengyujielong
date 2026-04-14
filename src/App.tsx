@@ -5,6 +5,7 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import type { PluginListenerHandle } from '@capacitor/core';
 import { useGameState } from './hooks/useGameState';
 import { usePinyinPatches } from './hooks/usePinyinPatches';
+import { useFavorites } from './hooks/useFavorites';
 import { GameMode, ChallengeConfig, LimitedTimeConfig } from './types';
 import { idiomLib } from './idiomLib';
 import HomePage from './components/HomePage';
@@ -18,13 +19,15 @@ import HistoryDetailPage from './components/HistoryDetailPage';
 import PinyinPatchPage from './components/PinyinPatchPage';
 import IdiomLibraryPage from './components/IdiomLibraryPage';
 import TrendPage from './components/TrendPage';
+import FavoritesPage from './components/FavoritesPage';
 
-type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'historyDetail' | 'pinyinPatch' | 'idiomLibrary' | 'trend';
+type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'historyDetail' | 'pinyinPatch' | 'idiomLibrary' | 'trend' | 'favorites';
 
 function App() {
     const [view, setView] = useState<ViewType>('home');
     const [gameState, gameActions] = useGameState();
     const { patches, addPatch, removePatch, clearAllPatches } = usePinyinPatches();
+    const { favorites, isFavorite, removeFavorite, toggleFavorite, favoritesCount } = useFavorites();
     const [detailModalIdiom, setDetailModalIdiom] = useState<string | null>(null);
     const [detailModalSearchQuery, setDetailModalSearchQuery] = useState<string>('');
     const [candidatesModalIdiom, setCandidatesModalIdiom] = useState<string | null>(null);
@@ -105,6 +108,10 @@ function App() {
                     return;
                 }
                 if (view === 'trend') {
+                    setView('home');
+                    return;
+                }
+                if (view === 'favorites') {
                     setView('home');
                     return;
                 }
@@ -199,6 +206,8 @@ function App() {
                     onViewPinyinPatches={() => setView('pinyinPatch')}
                     onViewIdiomLibrary={() => setView('idiomLibrary')}
                     onViewTrend={() => setView('trend')}
+                    onViewFavorites={() => setView('favorites')}
+                    favoritesCount={favoritesCount}
                 />
             )}
 
@@ -268,6 +277,15 @@ function App() {
                 />
             )}
 
+            {view === 'favorites' && (
+                <FavoritesPage
+                    favorites={favorites}
+                    onBack={() => setView('home')}
+                    onShowDetail={handleShowDetail}
+                    onRemoveFavorite={removeFavorite}
+                />
+            )}
+
             <DetailModal
                 idiom={detailModalIdiom}
                 onClose={handleCloseDetail}
@@ -275,12 +293,16 @@ function App() {
                 onRemovePatch={removePatch}
                 getPatch={(idiom) => patches.find(p => p.idiom === idiom)}
                 searchQuery={detailModalSearchQuery}
+                isFavorite={isFavorite}
+                toggleFavorite={toggleFavorite}
             />
 
             <CandidatesModal
                 idiom={candidatesModalIdiom}
                 onClose={handleCloseCandidates}
                 onShowDetail={handleShowDetail}
+                isFavorite={isFavorite}
+                toggleFavorite={toggleFavorite}
             />
 
             <GameOverModal
