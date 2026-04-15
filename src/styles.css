@@ -1382,6 +1382,14 @@ body {
   font-weight: 600;
 }
 
+.side-menu-footer {
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--surface);
+}
+
 /* Menu Button */
 .btn-menu {
   background: none;

@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { App } from '@capacitor/app';
 import { GameSession, GameMode } from '../types';
 
 interface HomePageProps {
@@ -37,6 +38,21 @@ function HomePage({
     setIsSideMenuOpen
 }: HomePageProps) {
     const sideMenuRef = useRef<HTMLDivElement>(null);
+    const [versionString, setVersionString] = useState('v99.99.99.99');
+
+    useEffect(() => {
+        const fetchVersion = async () => {
+            try {
+                const info = await App.getInfo();
+                const version = info.version || '99.99.99';
+                const build = info.build || '99';
+                setVersionString(`v${version}.${build}`);
+            } catch {
+                setVersionString('v99.99.99.99');
+            }
+        };
+        fetchVersion();
+    }, []);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -165,6 +181,9 @@ function HomePage({
                         <span>拼音修正</span>
                         {patchesCount > 0 && <span className="side-menu-badge">{patchesCount}</span>}
                     </button>
+                </div>
+                <div className="side-menu-footer">
+                    {versionString}
                 </div>
             </div>
 
