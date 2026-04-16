@@ -42,7 +42,7 @@ function HomePage({
     onImportData
 }: HomePageProps) {
     const sideMenuRef = useRef<HTMLDivElement>(null);
-    const [versionString, setVersionString] = useState('v99.99.99.99');
+    const [versionString, setVersionString] = useState('v99.99.99-b99');
 
     useEffect(() => {
         const fetchVersion = async () => {
@@ -50,9 +50,9 @@ function HomePage({
                 const info = await App.getInfo();
                 const version = info.version || '99.99.99';
                 const build = info.build || '99';
-                setVersionString(`v${version}.${build}`);
+                setVersionString(`v${version}-b${build}`);
             } catch {
-                setVersionString('v99.99.99.99');
+                setVersionString('v99.99.99-b99');
             }
         };
         fetchVersion();
