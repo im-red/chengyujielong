@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { idiomLib } from '../idiomLib';
 import { PinyinPatch } from '../types';
 import { highlightText } from '../utils';
@@ -112,7 +113,14 @@ function DetailModal({ idiom, onClose, onAddPatch, onRemovePatch, getPatch, sear
                                 <button
                                     type="button"
                                     className={`favorite-btn ${isFavorite(idiom) ? 'favorited' : ''}`}
-                                    onClick={() => toggleFavorite(idiom)}
+                                    onClick={async () => {
+                                        toggleFavorite(idiom);
+                                        try {
+                                            await Haptics.impact({ style: ImpactStyle.Medium });
+                                        } catch {
+                                            // Ignore haptics errors on non-mobile platforms
+                                        }
+                                    }}
                                     onMouseDown={(e) => e.preventDefault()}
                                     title={isFavorite(idiom) ? '取消收藏' : '添加收藏'}
                                 >

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { idiomLib } from '../idiomLib';
 
 interface CandidatesModalProps {
@@ -83,9 +84,14 @@ function CandidatesModal({ idiom, onClose, onShowDetail, isFavorite, toggleFavor
         isScrollingRef.current = false;
         const touch = e.touches[0];
         touchStartPosRef.current = { x: touch.clientX, y: touch.clientY };
-        longPressTimerRef.current = setTimeout(() => {
+        longPressTimerRef.current = setTimeout(async () => {
             toggleFavorite(candidateIdiom);
             longPressTriggeredRef.current = true;
+            try {
+                await Haptics.impact({ style: ImpactStyle.Medium });
+            } catch {
+                // Ignore haptics errors on non-mobile platforms
+            }
         }, 500);
     };
 
@@ -113,9 +119,14 @@ function CandidatesModal({ idiom, onClose, onShowDetail, isFavorite, toggleFavor
 
     const handleCandidateMouseDown = (candidateIdiom: string) => {
         longPressTriggeredRef.current = false;
-        longPressTimerRef.current = setTimeout(() => {
+        longPressTimerRef.current = setTimeout(async () => {
             toggleFavorite(candidateIdiom);
             longPressTriggeredRef.current = true;
+            try {
+                await Haptics.impact({ style: ImpactStyle.Medium });
+            } catch {
+                // Ignore haptics errors on non-mobile platforms
+            }
         }, 500);
     };
 
