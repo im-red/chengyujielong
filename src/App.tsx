@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 import { SplashScreen } from '@capacitor/splash-screen';
 import type { PluginListenerHandle } from '@capacitor/core';
 import { useGameState } from './hooks/useGameState';
@@ -26,8 +29,8 @@ type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'his
 function App() {
     const [view, setView] = useState<ViewType>('home');
     const [gameState, gameActions] = useGameState();
-    const { patches, addPatch, removePatch, clearAllPatches } = usePinyinPatches();
-    const { favorites, isFavorite, removeFavorite, toggleFavorite, favoritesCount } = useFavorites();
+    const { patches, addPatch, removePatch, clearAllPatches, importPatches } = usePinyinPatches();
+    const { favorites, isFavorite, removeFavorite, toggleFavorite, importFavorites, favoritesCount } = useFavorites();
     const [detailModalIdiom, setDetailModalIdiom] = useState<string | null>(null);
     const [detailModalSearchQuery, setDetailModalSearchQuery] = useState<string>('');
     const [candidatesModalIdiom, setCandidatesModalIdiom] = useState<string | null>(null);
@@ -196,6 +199,75 @@ function App() {
         setView('home');
     }, []);
 
+    const handleExportData = useCallback(async () => {
+        const data = {
+            sessions: gameState.sessions,
+            patches,
+            favorites
+        };
+        const jsonStr = JSON.stringify(data, null, 2);
+
+        const now = new Date();
+        const dateString = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+        const fileName = `chengyujielong_${dateString}.json`;
+
+        if (Capacitor.isNativePlatform()) {
+            try {
+                await Filesystem.writeFile({
+                    path: fileName,
+                    data: jsonStr,
+                    directory: Directory.Documents,
+                    encoding: Encoding.UTF8
+                });
+                alert(`数据已导出至 Documents/${fileName}`);
+            } catch (e) {
+                console.error('Export failed on native', e);
+                alert('导出失败: ' + (e instanceof Error ? e.message : String(e)));
+            }
+        } else {
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    }, [gameState.sessions, patches, favorites]);
+
+    const handleImportData = useCallback(() => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        input.onchange = (e: any) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const content = event.target?.result as string;
+                    const parsed = JSON.parse(content);
+                    if (parsed.sessions && Array.isArray(parsed.sessions)) {
+                        gameActions.importSessions(parsed.sessions);
+                    }
+                    if (parsed.patches && Array.isArray(parsed.patches)) {
+                        importPatches(parsed.patches);
+                    }
+                    if (parsed.favorites && Array.isArray(parsed.favorites)) {
+                        importFavorites(parsed.favorites);
+                    }
+                    alert('导入成功！');
+                } catch (err) {
+                    console.error('Import failed', err);
+                    alert('导入失败，文件格式可能不正确。');
+                }
+            };
+            reader.readAsText(file);
+        };
+        input.click();
+    }, [gameActions, importPatches, importFavorites]);
+
     return (
         <>
             {view === 'home' && (
@@ -215,6 +287,8 @@ function App() {
                     favoritesCount={favoritesCount}
                     isSideMenuOpen={isSideMenuOpen}
                     setIsSideMenuOpen={setIsSideMenuOpen}
+                    onExportData={handleExportData}
+                    onImportData={handleImportData}
                 />
             )}
 

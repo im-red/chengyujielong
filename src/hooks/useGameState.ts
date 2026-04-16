@@ -47,6 +47,7 @@ export interface GameActions {
     giveUp: () => void;
     deleteSession: (sessionId: string) => void;
     clearAllSessions: () => void;
+    importSessions: (sessions: GameSession[]) => void;
     triggerComputerTurn: (callback?: () => void) => void;
 }
 
@@ -432,6 +433,10 @@ export function useGameState(): [GameState, GameActions] {
         setSessions([]);
     }, [setSessions]);
 
+    const importSessions = useCallback((importedSessions: GameSession[]) => {
+        setSessions(importedSessions);
+    }, [setSessions]);
+
     const state: GameState = {
         currentSession,
         sessions: [...sessions].sort((a, b) => b.startTime - a.startTime),
@@ -446,6 +451,7 @@ export function useGameState(): [GameState, GameActions] {
         giveUp,
         deleteSession,
         clearAllSessions,
+        importSessions,
         triggerComputerTurn
     };
 

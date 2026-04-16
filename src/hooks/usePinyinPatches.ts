@@ -48,11 +48,17 @@ export function usePinyinPatches() {
         console.info('[usePinyinPatches] Cleared all patches');
     }, [setPatches]);
 
+    const importPatches = useCallback((importedPatches: PinyinPatch[]) => {
+        setPatches(importedPatches);
+        console.info('[usePinyinPatches] Imported patches');
+    }, [setPatches]);
+
     return {
         patches,
         addPatch,
         removePatch,
         getPatch,
-        clearAllPatches
+        clearAllPatches,
+        importPatches
     };
 }

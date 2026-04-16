@@ -18,6 +18,8 @@ interface HomePageProps {
     favoritesCount: number;
     isSideMenuOpen: boolean;
     setIsSideMenuOpen: (open: boolean) => void;
+    onExportData: () => void;
+    onImportData: () => void;
 }
 
 function HomePage({
@@ -35,7 +37,9 @@ function HomePage({
     onViewFavorites,
     favoritesCount,
     isSideMenuOpen,
-    setIsSideMenuOpen
+    setIsSideMenuOpen,
+    onExportData,
+    onImportData
 }: HomePageProps) {
     const sideMenuRef = useRef<HTMLDivElement>(null);
     const [versionString, setVersionString] = useState('v99.99.99.99');
@@ -180,6 +184,14 @@ function HomePage({
                         <span className="side-menu-icon">📝</span>
                         <span>拼音修正</span>
                         {patchesCount > 0 && <span className="side-menu-badge">{patchesCount}</span>}
+                    </button>
+                    <button className="side-menu-item" onClick={() => { setIsSideMenuOpen(false); onExportData(); }}>
+                        <span className="side-menu-icon">📤</span>
+                        <span>导出数据</span>
+                    </button>
+                    <button className="side-menu-item" onClick={() => { setIsSideMenuOpen(false); onImportData(); }}>
+                        <span className="side-menu-icon">📥</span>
+                        <span>导入数据</span>
                     </button>
                 </div>
                 <div className="side-menu-footer">

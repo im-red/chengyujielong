@@ -14,6 +14,7 @@ export function useFavorites(): {
     addFavorite: (idiom: string) => void;
     removeFavorite: (idiom: string) => void;
     toggleFavorite: (idiom: string) => void;
+    importFavorites: (favorites: FavoriteItem[]) => void;
     favoritesCount: number;
 } {
     const [favorites, setFavorites] = useLocalStorageState<FavoriteItem[]>(FAVORITES_KEY, []);
@@ -43,6 +44,10 @@ export function useFavorites(): {
         }
     }, [isFavorite, addFavorite, removeFavorite]);
 
+    const importFavorites = useCallback((importedFavorites: FavoriteItem[]) => {
+        setFavorites(importedFavorites);
+    }, [setFavorites]);
+
     const favoritesCount = useMemo(() => favorites.length, [favorites]);
 
     return {
@@ -51,6 +56,7 @@ export function useFavorites(): {
         addFavorite,
         removeFavorite,
         toggleFavorite,
+        importFavorites,
         favoritesCount
     };
 }

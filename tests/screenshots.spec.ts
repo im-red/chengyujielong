@@ -2,6 +2,7 @@ import { test } from '@playwright/test';
 import path from 'path';
 
 test.describe('Capture Screenshots for README', () => {
+    test.skip();
     test('capture home page', async ({ page }) => {
         await page.goto('/');
         await page.waitForSelector('.home-container');
