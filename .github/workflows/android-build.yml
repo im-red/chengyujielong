@@ -2,14 +2,19 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ master ]
+    tags:
+      - 'v*'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -71,3 +76,19 @@ jobs:
         with:
           name: release-apk
           path: android/app/build/outputs/apk/release/app-release-signed.apk
+
+      - name: Extract Tag Message
+        id: tag_msg
+        run: |
+          TAG_MSG=$(git tag -l --format='%(contents)' ${{ github.ref_name }})
+          echo "message<<EOF" >> $GITHUB_OUTPUT
+          echo "$TAG_MSG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: ${{ steps.tag_msg.outputs.message }}
+          files: android/app/build/outputs/apk/release/app-release-signed.apk
