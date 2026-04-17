@@ -27,7 +27,7 @@ test.describe('Import and Export Data', () => {
 
         // Verify file name
         const suggestedFilename = download.suggestedFilename();
-        expect(suggestedFilename).toMatch(/^chengyujielong_data_\d{8}_\d{6}\.json$/);
+        expect(suggestedFilename).toMatch(/^chengyujielong_\d{8}_\d{6}\.json$/);
 
         // Read downloaded file
         const path = await download.path();

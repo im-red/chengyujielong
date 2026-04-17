@@ -29,7 +29,7 @@ type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'his
 function App() {
     const [view, setView] = useState<ViewType>('home');
     const [gameState, gameActions] = useGameState();
-    const { patches, addPatch, removePatch, clearAllPatches, importPatches } = usePinyinPatches();
+    const { patches, addPatch, removePatch, clearAllPatches, importPatches, getPatch } = usePinyinPatches();
     const { favorites, isFavorite, removeFavorite, toggleFavorite, importFavorites, favoritesCount } = useFavorites();
     const [detailModalIdiom, setDetailModalIdiom] = useState<string | null>(null);
     const [detailModalSearchQuery, setDetailModalSearchQuery] = useState<string>('');
@@ -372,7 +372,7 @@ function App() {
                 onClose={handleCloseDetail}
                 onAddPatch={addPatch}
                 onRemovePatch={removePatch}
-                getPatch={(idiom) => patches.find(p => p.idiom === idiom)}
+                getPatch={getPatch}
                 searchQuery={detailModalSearchQuery}
                 isFavorite={isFavorite}
                 toggleFavorite={toggleFavorite}
