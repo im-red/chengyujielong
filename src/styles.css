@@ -615,6 +615,11 @@ body {
   border: 2px solid #ffcdd2;
 }
 
+.message-bubble.no-interact {
+  pointer-events: none;
+  cursor: default;
+}
+
 .user-message .message-bubble.error-bubble {
   background: #ffebee !important;
   color: var(--error) !important;

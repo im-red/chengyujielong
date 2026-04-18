@@ -83,6 +83,7 @@ function MessageBubble({ message, isFirst, mode, onShowDetail, onShowCandidates 
         message.score !== undefined;
 
     const isGiveUpMessage = message.isUser && message.isGiveUp;
+    const isIdiomNotExist = message.isError && message.errorType === RecordType.IdiomNotExist;
 
     if (isGiveUpMessage) {
         return (
@@ -100,14 +101,14 @@ function MessageBubble({ message, isFirst, mode, onShowDetail, onShowCandidates 
     return (
         <div className={`message ${message.isUser ? 'user-message' : 'computer-message'}`}>
             <div
-                className={`message-bubble ${message.isError ? 'error-bubble' : ''}`}
+                className={`message-bubble ${message.isError ? 'error-bubble' : ''} ${isIdiomNotExist ? 'no-interact' : ''}`}
                 data-idiom={message.idiom}
-                onMouseDown={handleMouseDown}
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
-                onTouchMove={handleTouchMove}
-                onContextMenu={handleContextMenu}
-                onClick={handleClick}
+                onMouseDown={isIdiomNotExist ? undefined : handleMouseDown}
+                onTouchStart={isIdiomNotExist ? undefined : handleTouchStart}
+                onTouchEnd={isIdiomNotExist ? undefined : handleTouchEnd}
+                onTouchMove={isIdiomNotExist ? undefined : handleTouchMove}
+                onContextMenu={isIdiomNotExist ? undefined : handleContextMenu}
+                onClick={isIdiomNotExist ? undefined : handleClick}
             >
                 {message.idiom}
             </div>
@@ -120,7 +121,7 @@ function MessageBubble({ message, isFirst, mode, onShowDetail, onShowCandidates 
                     {shouldShowScore && <span className="message-score">+{message.score}分</span>}
                 </div>
             )}
-            {isFirst && !message.isUser && (
+            {isFirst && !message.isUser && !isIdiomNotExist && (
                 <div className="message-hint">点击查看详情 · 长按查看候选</div>
             )}
         </div>

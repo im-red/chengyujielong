@@ -138,10 +138,6 @@ function GamePage({
         }
     }, [onGiveUp]);
 
-    const handleNewGame = useCallback(() => {
-        onStartNewGame(session.mode, session.challengeConfig);
-    }, [onStartNewGame, session.mode, session.challengeConfig]);
-
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             handleSubmit();
