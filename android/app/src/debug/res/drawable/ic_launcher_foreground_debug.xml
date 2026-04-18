@@ -3,7 +3,7 @@
     <item android:drawable="@mipmap/ic_launcher_foreground" />
     <item
         android:gravity="bottom|right"
-        android:width="12dp"
-        android:height="12dp"
+        android:width="20dp"
+        android:height="20dp"
         android:drawable="@drawable/ic_debug_badge" />
 </layer-list>
