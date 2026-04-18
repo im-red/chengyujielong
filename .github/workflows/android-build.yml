@@ -77,6 +77,9 @@ jobs:
           name: release-apk
           path: android/app/build/outputs/apk/release/app-release-signed.apk
 
+      - name: Fetch Tag Annotation
+        run: git fetch origin tag ${{ github.ref_name }} --no-recurse-submodules
+
       - name: Extract Tag Message
         id: tag_msg
         run: |
