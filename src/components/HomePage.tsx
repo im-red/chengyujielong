@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { App } from '@capacitor/app';
+import { useEffect, useRef } from 'react';
 import { GameSession, GameMode } from '../types';
+import useAppVersion from '../hooks/useAppVersion';
 
 interface HomePageProps {
     sessions: GameSession[];
@@ -20,6 +20,7 @@ interface HomePageProps {
     setIsSideMenuOpen: (open: boolean) => void;
     onExportData: () => void;
     onImportData: () => void;
+    onViewSettings: () => void;
 }
 
 function HomePage({
@@ -39,24 +40,11 @@ function HomePage({
     isSideMenuOpen,
     setIsSideMenuOpen,
     onExportData,
-    onImportData
+    onImportData,
+    onViewSettings
 }: HomePageProps) {
     const sideMenuRef = useRef<HTMLDivElement>(null);
-    const [versionString, setVersionString] = useState('v99.99.99-b99');
-
-    useEffect(() => {
-        const fetchVersion = async () => {
-            try {
-                const info = await App.getInfo();
-                const version = info.version || '99.99.99';
-                const build = info.build || '99';
-                setVersionString(`v${version}-b${build}`);
-            } catch {
-                setVersionString('v99.99.99-b99');
-            }
-        };
-        fetchVersion();
-    }, []);
+    const { fullString: versionString } = useAppVersion();
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -192,6 +180,11 @@ function HomePage({
                     <button className="side-menu-item" onClick={() => { setIsSideMenuOpen(false); onImportData(); }}>
                         <span className="side-menu-icon">📥</span>
                         <span>导入数据</span>
+                    </button>
+                    <div className="side-menu-divider" />
+                    <button className="side-menu-item" onClick={() => { setIsSideMenuOpen(false); onViewSettings(); }}>
+                        <span className="side-menu-icon">⚙️</span>
+                        <span>设置</span>
                     </button>
                 </div>
                 <div className="side-menu-footer">

@@ -23,8 +23,10 @@ import PinyinPatchPage from './components/PinyinPatchPage';
 import IdiomLibraryPage from './components/IdiomLibraryPage';
 import TrendPage from './components/TrendPage';
 import FavoritesPage from './components/FavoritesPage';
+import SettingsPage from './components/SettingsPage';
+import AboutPage from './components/AboutPage';
 
-type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'historyDetail' | 'pinyinPatch' | 'idiomLibrary' | 'trend' | 'favorites';
+type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'historyDetail' | 'pinyinPatch' | 'idiomLibrary' | 'trend' | 'favorites' | 'settings' | 'about';
 
 function App() {
     const [view, setView] = useState<ViewType>('home');
@@ -121,6 +123,14 @@ function App() {
                 }
                 if (view === 'favorites') {
                     setView('home');
+                    return;
+                }
+                if (view === 'settings') {
+                    setView('home');
+                    return;
+                }
+                if (view === 'about') {
+                    setView('settings');
                     return;
                 }
                 if (canGoBack) {
@@ -289,6 +299,7 @@ function App() {
                     setIsSideMenuOpen={setIsSideMenuOpen}
                     onExportData={handleExportData}
                     onImportData={handleImportData}
+                    onViewSettings={() => setView('settings')}
                 />
             )}
 
@@ -364,6 +375,19 @@ function App() {
                     onBack={() => setView('home')}
                     onShowDetail={handleShowDetail}
                     onRemoveFavorite={removeFavorite}
+                />
+            )}
+
+            {view === 'settings' && (
+                <SettingsPage
+                    onBack={() => setView('home')}
+                    onViewAbout={() => setView('about')}
+                />
+            )}
+
+            {view === 'about' && (
+                <AboutPage
+                    onBack={() => setView('settings')}
                 />
             )}
 
