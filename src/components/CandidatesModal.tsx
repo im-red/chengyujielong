@@ -13,6 +13,7 @@ interface CandidatesModalProps {
 function CandidatesModal({ idiom, onClose, onShowDetail, isFavorite, toggleFavorite }: CandidatesModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
     const [selectedType, setSelectedType] = useState<string | null>(null);
+    const [snapshotFavorites, setSnapshotFavorites] = useState<string[]>([]);
     const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const longPressTriggeredRef = useRef(false);
     const isScrollingRef = useRef(false);
@@ -65,6 +66,9 @@ function CandidatesModal({ idiom, onClose, onShowDetail, isFavorite, toggleFavor
     }, [isOpen, handleKeyDown]);
 
     const handleStatClick = (type: string) => {
+        if (type === 'favorites') {
+            setSnapshotFavorites(allCandidates.filter(c => isFavorite(c)));
+        }
         setSelectedType(type);
     };
 
@@ -145,12 +149,15 @@ function CandidatesModal({ idiom, onClose, onShowDetail, isFavorite, toggleFavor
                 return { title: '已使用的候选成语', candidates: usedCandidates };
             case 'unused':
                 return { title: '未使用的候选成语', candidates: unusedCandidates };
+            case 'favorites':
+                return { title: '已收藏的候选成语', candidates: snapshotFavorites };
             default:
                 return { title: '', candidates: [] };
         }
     };
 
     const { title, candidates } = getCandidatesForType();
+    const currentFavoriteCount = allCandidates.filter(c => isFavorite(c)).length;
 
     return (
         <div
@@ -197,6 +204,17 @@ function CandidatesModal({ idiom, onClose, onShowDetail, isFavorite, toggleFavor
                             >
                                 <span className="stat-label">总数</span>
                                 <span className="stat-value">{allCandidates.length}</span>
+                                <span className="stat-hint">点击查看</span>
+                            </div>
+                            <div
+                                className="stat-item clickable"
+                                data-type="favorites"
+                                onMouseDown={(e) => e.preventDefault()}
+                                onTouchStart={(e) => e.preventDefault()}
+                                onClick={() => handleStatClick('favorites')}
+                            >
+                                <span className="stat-label">已收藏</span>
+                                <span className="stat-value favorite">{currentFavoriteCount}</span>
                                 <span className="stat-hint">点击查看</span>
                             </div>
                             <div

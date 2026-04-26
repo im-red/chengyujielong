@@ -1069,6 +1069,10 @@ body {
   color: var(--primary);
 }
 
+.stat-value.favorite {
+  color: #ffc107;
+}
+
 .stat-value.used {
   color: var(--text-muted);
 }
