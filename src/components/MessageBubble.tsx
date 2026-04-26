@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
-import { GameMessage, RecordType, GameMode } from '../types';
+import { GameMessage, RecordType, GameMode, Player } from '../types';
+import PlayerAvatar from './PlayerAvatar';
 
 interface MessageBubbleProps {
     message: GameMessage;
@@ -7,6 +8,7 @@ interface MessageBubbleProps {
     mode: GameMode;
     onShowDetail: (idiom: string) => void;
     onShowCandidates: (idiom: string) => void;
+    player?: Player;
 }
 
 function getErrorReason(errorType: RecordType): string {
@@ -22,7 +24,7 @@ function getErrorReason(errorType: RecordType): string {
     }
 }
 
-function MessageBubble({ message, isFirst, mode, onShowDetail, onShowCandidates }: MessageBubbleProps) {
+function MessageBubble({ message, isFirst, mode, onShowDetail, onShowCandidates, player }: MessageBubbleProps) {
     const longPressTimerRef = useRef<number | null>(null);
     const [isLongPress, setIsLongPress] = useState(false);
     const LONG_PRESS_DURATION = 500;
@@ -79,7 +81,7 @@ function MessageBubble({ message, isFirst, mode, onShowDetail, onShowCandidates 
     const timeStr = formatTimeCost(message.timeCost);
 
     const shouldShowScore = message.isUser && !message.isError && !message.isGiveUp &&
-        (mode === GameMode.Endless || mode === GameMode.LimitedTime) &&
+        (mode === GameMode.Endless || mode === GameMode.LimitedTime || mode === GameMode.Multiplayer) &&
         message.score !== undefined;
 
     const isGiveUpMessage = message.isUser && message.isGiveUp;
@@ -87,43 +89,61 @@ function MessageBubble({ message, isFirst, mode, onShowDetail, onShowCandidates 
 
     if (isGiveUpMessage) {
         return (
-            <div className="message user-message">
-                <div className="message-bubble give-up-bubble">
-                    {message.idiom}
-                </div>
-                <div className="message-time">
-                    <span className="message-score message-score-negative">-10分</span>
+            <div className={`message ${mode === GameMode.Multiplayer ? 'multiplayer-message' : 'user-message'}`}>
+                {player && mode === GameMode.Multiplayer && (
+                    <PlayerAvatar player={player} size="small" />
+                )}
+                <div className="message-content-wrapper">
+                    <div className="message-bubble give-up-bubble">
+                        {message.idiom}
+                    </div>
+                    <div className="message-time">
+                        {mode !== GameMode.Multiplayer && (
+                            <span className="message-score message-score-negative">-10分</span>
+                        )}
+                    </div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className={`message ${message.isUser ? 'user-message' : 'computer-message'}`}>
-            <div
-                className={`message-bubble ${message.isError ? 'error-bubble' : ''} ${isIdiomNotExist ? 'no-interact' : ''}`}
-                data-idiom={message.idiom}
-                onMouseDown={isIdiomNotExist ? undefined : handleMouseDown}
-                onTouchStart={isIdiomNotExist ? undefined : handleTouchStart}
-                onTouchEnd={isIdiomNotExist ? undefined : handleTouchEnd}
-                onTouchMove={isIdiomNotExist ? undefined : handleTouchMove}
-                onContextMenu={isIdiomNotExist ? undefined : handleContextMenu}
-                onClick={isIdiomNotExist ? undefined : handleClick}
-            >
-                {message.idiom}
-            </div>
-            {message.isUser && message.isError && message.errorType && (
-                <div className="message-error-reason">{getErrorReason(message.errorType)}</div>
+        <div className={`message ${mode === GameMode.Multiplayer ? 'multiplayer-message' : (message.isUser ? 'user-message' : 'computer-message')}`}>
+            {player && mode === GameMode.Multiplayer && (
+                <PlayerAvatar player={player} size="small" />
             )}
-            {message.isUser && !message.isError && (
-                <div className="message-time">
-                    {timeStr}
-                    {shouldShowScore && <span className="message-score">+{message.score}分</span>}
+            <div className="message-content-wrapper">
+                {player && message.isUser && mode !== GameMode.Multiplayer && (
+                    <div className="message-player-info">
+                        <PlayerAvatar player={player} size="small" />
+                        <span className="message-player-name">{player.name}</span>
+                    </div>
+                )}
+                <div
+                    className={`message-bubble ${message.isError ? 'error-bubble' : ''} ${isIdiomNotExist ? 'no-interact' : ''}`}
+                    data-idiom={message.idiom}
+                    onMouseDown={isIdiomNotExist ? undefined : handleMouseDown}
+                    onTouchStart={isIdiomNotExist ? undefined : handleTouchStart}
+                    onTouchEnd={isIdiomNotExist ? undefined : handleTouchEnd}
+                    onTouchMove={isIdiomNotExist ? undefined : handleTouchMove}
+                    onContextMenu={isIdiomNotExist ? undefined : handleContextMenu}
+                    onClick={isIdiomNotExist ? undefined : handleClick}
+                >
+                    {message.idiom}
                 </div>
-            )}
-            {isFirst && !message.isUser && !isIdiomNotExist && (
-                <div className="message-hint">点击查看详情 · 长按查看候选</div>
-            )}
+                {message.isUser && message.isError && message.errorType && (
+                    <div className="message-error-reason">{getErrorReason(message.errorType)}</div>
+                )}
+                {message.isUser && !message.isError && (
+                    <div className="message-time">
+                        {timeStr}
+                        {shouldShowScore && <span className="message-score">+{message.score}分</span>}
+                    </div>
+                )}
+                {isFirst && !message.isUser && !isIdiomNotExist && mode !== GameMode.Multiplayer && (
+                    <div className="message-hint">点击查看详情 · 长按查看候选</div>
+                )}
+            </div>
         </div>
     );
 }

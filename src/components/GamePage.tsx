@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { GameSession, GameMode, RecordType } from '../types';
-import MessageBubble from './MessageBubble';
+import ChatContainer from './ChatContainer';
+import IdiomInput from './IdiomInput';
+import { useIdiomSubmission } from '../hooks/useIdiomSubmission';
 
 interface GamePageProps {
     session: GameSession;
@@ -33,15 +35,19 @@ function GamePage({
     onGameOver
 }: GamePageProps) {
     const [input, setInput] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
-    const chatContainerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    const { isSubmitting, submitIdiom } = useIdiomSubmission({
+        onSubmitIdiom,
+        onTriggerComputerTurn
+    });
 
     const modeNames = {
         [GameMode.Endless]: '无尽模式',
         [GameMode.Challenge]: '挑战模式',
-        [GameMode.LimitedTime]: '限时模式'
+        [GameMode.LimitedTime]: '限时模式',
+        [GameMode.Multiplayer]: '多人模式'
     };
 
     let modeDisplay = modeNames[session.mode];
@@ -82,12 +88,6 @@ function GamePage({
     }, [session.isActive, session.timeLimit, currentTurnStartTime]);
 
     useEffect(() => {
-        if (chatContainerRef.current) {
-            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-        }
-    }, [session.messages.length]);
-
-    useEffect(() => {
         if (session.isActive && inputRef.current && !isSubmitting) {
             if (document.activeElement !== inputRef.current) {
                 inputRef.current.focus();
@@ -104,30 +104,11 @@ function GamePage({
     }, [session.isActive, onGameOver]);
 
     const handleSubmit = useCallback(async () => {
-        if (!input.trim() || isSubmitting) return;
-
-        setIsSubmitting(true);
-        const result = onSubmitIdiom(input.trim());
-
-        setInput('');
-        if (result.success) {
-            onTriggerComputerTurn(() => {
-                setIsSubmitting(false);
-            });
-            try {
-                await Haptics.impact({ style: ImpactStyle.Medium });
-            } catch (error) {
-                console.warn('Unable to trigger haptic feedback', error);
-            }
-        } else {
-            setIsSubmitting(false);
-            try {
-                await Haptics.impact({ style: ImpactStyle.Heavy });
-            } catch (error) {
-                console.warn('Unable to trigger haptic feedback', error);
-            }
+        const success = await submitIdiom(input);
+        if (success) {
+            setInput('');
         }
-    }, [input, isSubmitting, onSubmitIdiom, onTriggerComputerTurn]);
+    }, [input, submitIdiom]);
 
     const handleGiveUp = useCallback(async () => {
         onGiveUp();
@@ -137,12 +118,6 @@ function GamePage({
             console.warn('Unable to trigger haptic feedback', error);
         }
     }, [onGiveUp]);
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            handleSubmit();
-        }
-    };
 
     const timerDisplay = session.timeLimit && session.timeLimit > 0
         ? `${remainingTime}s`
@@ -194,92 +169,24 @@ function GamePage({
                 </div>
             )}
 
-            <div className="chat-container" ref={chatContainerRef}>
-                {session.messages.map((msg, index) => (
-                    <MessageBubble
-                        key={`${msg.timestamp}-${index}`}
-                        message={msg}
-                        isFirst={index === 0}
-                        mode={session.mode}
-                        onShowDetail={onShowDetail}
-                        onShowCandidates={onShowCandidates}
-                    />
-                ))}
-            </div>
+            <ChatContainer
+                messages={session.messages}
+                mode={session.mode}
+                onShowDetail={onShowDetail}
+                onShowCandidates={onShowCandidates}
+            />
 
-            {session.isActive ? (
-                <div className="input-section">
-                    <div className="input-group">
-                        <div className="input-wrapper">
-                            <input
-                                ref={inputRef}
-                                type="text"
-                                id="idiom-input"
-                                placeholder="请输入成语接龙..."
-                                autoComplete="off"
-                                value={input}
-                                onChange={(e) => {
-                                    if (!isSubmitting) setInput(e.target.value);
-                                }}
-                                onKeyDown={(e) => {
-                                    if (isSubmitting) {
-                                        e.preventDefault();
-                                        return;
-                                    }
-                                    handleKeyDown(e);
-                                }}
-                            />
-                            {input && !isSubmitting && (
-                                <button
-                                    className="input-clear-btn"
-                                    onClick={() => setInput('')}
-                                    onMouseDown={(e) => e.preventDefault()}
-                                    type="button"
-                                    aria-label="清空输入"
-                                >
-                                    ×
-                                </button>
-                            )}
-                        </div>
-                        <button
-                            className="btn btn-primary"
-                            id="submit-btn"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleSubmit();
-                            }}
-                            onMouseDown={(e) => e.preventDefault()}
-                            onTouchStart={(e) => e.preventDefault()}
-                            onTouchEnd={(e) => {
-                                e.preventDefault();
-                                handleSubmit();
-                            }}
-                            disabled={isSubmitting || !input.trim()}
-                        >
-                            发送
-                        </button>
-                        {(session.mode === GameMode.Endless || session.mode === GameMode.LimitedTime) && (
-                            <button
-                                className="btn btn-secondary"
-                                id="giveup-btn"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    handleGiveUp();
-                                }}
-                                onMouseDown={(e) => e.preventDefault()}
-                                onTouchStart={(e) => e.preventDefault()}
-                                onTouchEnd={(e) => {
-                                    e.preventDefault();
-                                    handleGiveUp();
-                                }}
-                                disabled={isSubmitting}
-                            >
-                                放弃
-                            </button>
-                        )}
-                    </div>
-                </div>
-            ) : null}
+            {session.isActive && (
+                <IdiomInput
+                    input={input}
+                    isSubmitting={isSubmitting}
+                    mode={session.mode}
+                    onInputChange={setInput}
+                    onSubmit={handleSubmit}
+                    onGiveUp={handleGiveUp}
+                    showGiveUp={session.mode === GameMode.Endless || session.mode === GameMode.LimitedTime}
+                />
+            )}
         </div>
     );
 }

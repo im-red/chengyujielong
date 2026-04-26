@@ -17,7 +17,16 @@ export enum RecordType {
 export enum GameMode {
     Endless = 'endless',
     Challenge = 'challenge',
-    LimitedTime = 'limitedTime'
+    LimitedTime = 'limitedTime',
+    Multiplayer = 'multiplayer'
+}
+
+export interface Player {
+    id: string;
+    name: string;
+    avatarColor: string;
+    score: number;
+    turnOrder: number;
 }
 
 export interface ChallengeConfig {
@@ -38,6 +47,7 @@ export interface GameMessage {
     errorType?: RecordType;
     score?: number; // score earned for this submission (only for Endless/LimitedTime mode)
     isGiveUp?: boolean; // true when user gives up
+    playerId?: string; // for multiplayer mode - which player submitted this
 }
 
 export interface GameSession {
@@ -54,6 +64,8 @@ export interface GameSession {
     isActive: boolean;
     challengeConfig?: ChallengeConfig; // store original config
     limitedTimeConfig?: LimitedTimeConfig; // store original config
+    players?: Player[]; // for multiplayer mode
+    currentPlayerIndex?: number; // for multiplayer mode
 }
 
 export interface GameState {
@@ -67,4 +79,14 @@ export interface PinyinPatch {
     originalPinyin: string;
     correctedPinyin: string;
     createdAt: number;
+}
+
+export function isMultiplayerSession(session: GameSession): session is GameSession & { players: Player[], currentPlayerIndex: number } {
+    return session.mode === GameMode.Multiplayer &&
+        session.players !== undefined &&
+        session.currentPlayerIndex !== undefined;
+}
+
+export function isSinglePlayerSession(session: GameSession): boolean {
+    return session.mode !== GameMode.Multiplayer;
 }

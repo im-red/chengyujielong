@@ -1,0 +1,121 @@
+.current-turn-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #e3f2fd;
+    border-bottom: 1px solid #90caf9;
+}
+
+.current-turn-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1976d2;
+}
+
+.current-turn-time {
+    font-size: 14px;
+    color: #666;
+    font-family: monospace;
+}
+
+.first-turn-hint {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    margin: 16px;
+    background: #fff3e0;
+    border-radius: 8px;
+    border: 1px solid #ffcc80;
+}
+
+.first-turn-hint-text {
+    font-size: 14px;
+    color: #e65100;
+    line-height: 1.5;
+}
+
+.first-turn-hint-sub {
+    font-size: 12px;
+    color: #f57c00;
+}
+
+.multiplayer-input-section {
+    background: white;
+    border-top: 1px solid #e0e0e0;
+}
+
+.multiplayer-input-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.multiplayer-input-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.game-over-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.game-over-content {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.game-over-content h2 {
+    margin: 0 0 16px 0;
+    text-align: center;
+    color: #333;
+}
+
+.game-over-content .btn {
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px;
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .current-turn-indicator {
+        padding: 6px 12px;
+    }
+
+    .current-turn-name {
+        font-size: 13px;
+    }
+
+    .current-turn-time {
+        font-size: 13px;
+    }
+
+    .multiplayer-input-header {
+        padding: 6px 12px;
+    }
+
+    .multiplayer-input-name {
+        font-size: 13px;
+    }
+}

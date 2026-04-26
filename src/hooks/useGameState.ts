@@ -1,7 +1,8 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { idiomLib } from '../idiomLib';
-import { GameSession, GameMode, GameMessage, RecordType, ChallengeConfig, LimitedTimeConfig } from '../types';
+import { GameSession, GameMode, GameMessage, RecordType, ChallengeConfig, LimitedTimeConfig, Player } from '../types';
 import useLocalStorageState from './useLocalStorageState';
+import { generateAvatarColor } from '../utils/generateAvatarColor';
 
 const SESSIONS_KEY = 'chengyujielong_sessions';
 
@@ -49,6 +50,11 @@ export interface GameActions {
     clearAllSessions: () => void;
     importSessions: (sessions: GameSession[]) => void;
     triggerComputerTurn: (callback?: () => void) => void;
+    addPlayer: (name: string) => void;
+    removePlayer: (playerId: string) => void;
+    updatePlayerName: (playerId: string, name: string) => void;
+    getCurrentPlayer: () => Player | null;
+    startMultiplayerGame: (players: Player[]) => void;
 }
 
 export function useGameState(): [GameState, GameActions] {
@@ -277,6 +283,12 @@ export function useGameState(): [GameState, GameActions] {
                 errorType: result
             };
 
+            if (currentSession.mode === GameMode.Multiplayer &&
+                currentSession.players &&
+                currentSession.currentPlayerIndex !== undefined) {
+                message.playerId = currentSession.players[currentSession.currentPlayerIndex].id;
+            }
+
             let updatedSession = {
                 ...currentSession,
                 messages: [...currentSession.messages, message]
@@ -313,7 +325,9 @@ export function useGameState(): [GameState, GameActions] {
             return { success: false, error: errorMessage, errorType: result };
         }
 
-        const scoreToAdd = (currentSession.mode === GameMode.Endless || currentSession.mode === GameMode.LimitedTime)
+        const scoreToAdd = (currentSession.mode === GameMode.Endless ||
+            currentSession.mode === GameMode.LimitedTime ||
+            currentSession.mode === GameMode.Multiplayer)
             ? calculateEndlessScore(timeCost)
             : 10;
 
@@ -330,6 +344,20 @@ export function useGameState(): [GameState, GameActions] {
             messages: [...currentSession.messages, message],
             score: currentSession.score + scoreToAdd
         };
+
+        if (currentSession.mode === GameMode.Multiplayer &&
+            currentSession.players &&
+            currentSession.currentPlayerIndex !== undefined) {
+            message.playerId = currentSession.players[currentSession.currentPlayerIndex].id;
+
+            updatedSession.players = currentSession.players.map((p, index) =>
+                index === currentSession.currentPlayerIndex
+                    ? { ...p, score: p.score + scoreToAdd }
+                    : p
+            );
+
+            updatedSession.currentPlayerIndex = (currentSession.currentPlayerIndex + 1) % currentSession.players.length;
+        }
 
         idiomLib.markUsed(input);
         setCurrentTurnStartTime(now);
@@ -402,8 +430,31 @@ export function useGameState(): [GameState, GameActions] {
             return;
         }
 
-        if (currentSession.mode === GameMode.Endless || currentSession.mode === GameMode.LimitedTime) {
-            const now = Date.now();
+        const now = Date.now();
+
+        if (currentSession.mode === GameMode.Multiplayer &&
+            currentSession.players &&
+            currentSession.currentPlayerIndex !== undefined) {
+            const giveUpMessage: GameMessage = {
+                idiom: '放弃',
+                isUser: true,
+                timestamp: now,
+                timeCost: 0,
+                isGiveUp: true,
+                score: 0,
+                playerId: currentSession.players[currentSession.currentPlayerIndex].id
+            };
+
+            const updatedSession = {
+                ...currentSession,
+                messages: [...currentSession.messages, giveUpMessage],
+                currentPlayerIndex: (currentSession.currentPlayerIndex + 1) % currentSession.players.length
+            };
+
+            setCurrentSession(updatedSession);
+            saveCurrentSession(updatedSession);
+            setCurrentTurnStartTime(now);
+        } else if (currentSession.mode === GameMode.Endless || currentSession.mode === GameMode.LimitedTime) {
             const giveUpMessage: GameMessage = {
                 idiom: '放弃',
                 isUser: true,
@@ -437,6 +488,108 @@ export function useGameState(): [GameState, GameActions] {
         setSessions(importedSessions);
     }, [setSessions]);
 
+    const addPlayer = useCallback((name: string) => {
+        if (!currentSession || currentSession.mode !== GameMode.Multiplayer) {
+            return;
+        }
+
+        const players = currentSession.players || [];
+        const newPlayer: Player = {
+            id: `player_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            name,
+            avatarColor: generateAvatarColor(name),
+            score: 0,
+            turnOrder: players.length
+        };
+
+        const updatedSession = {
+            ...currentSession,
+            players: [...players, newPlayer]
+        };
+
+        setCurrentSession(updatedSession);
+        saveCurrentSession(updatedSession);
+    }, [currentSession, saveCurrentSession]);
+
+    const removePlayer = useCallback((playerId: string) => {
+        if (!currentSession || currentSession.mode !== GameMode.Multiplayer || !currentSession.players) {
+            return;
+        }
+
+        const updatedPlayers = currentSession.players
+            .filter(p => p.id !== playerId)
+            .map((p, index) => ({ ...p, turnOrder: index }));
+
+        const updatedSession = {
+            ...currentSession,
+            players: updatedPlayers,
+            currentPlayerIndex: currentSession.currentPlayerIndex !== undefined &&
+                currentSession.currentPlayerIndex >= updatedPlayers.length
+                ? 0
+                : currentSession.currentPlayerIndex
+        };
+
+        setCurrentSession(updatedSession);
+        saveCurrentSession(updatedSession);
+    }, [currentSession, saveCurrentSession]);
+
+    const updatePlayerName = useCallback((playerId: string, name: string) => {
+        if (!currentSession || currentSession.mode !== GameMode.Multiplayer || !currentSession.players) {
+            return;
+        }
+
+        const updatedPlayers = currentSession.players.map(p =>
+            p.id === playerId
+                ? { ...p, name, avatarColor: generateAvatarColor(name) }
+                : p
+        );
+
+        const updatedSession = {
+            ...currentSession,
+            players: updatedPlayers
+        };
+
+        setCurrentSession(updatedSession);
+        saveCurrentSession(updatedSession);
+    }, [currentSession, saveCurrentSession]);
+
+    const getCurrentPlayer = useCallback((): Player | null => {
+        if (!currentSession ||
+            currentSession.mode !== GameMode.Multiplayer ||
+            !currentSession.players ||
+            currentSession.currentPlayerIndex === undefined) {
+            return null;
+        }
+
+        return currentSession.players[currentSession.currentPlayerIndex] || null;
+    }, [currentSession]);
+
+    const startMultiplayerGame = useCallback((players: Player[]) => {
+        if (players.length < 2) {
+            throw new Error('At least 2 players required for multiplayer mode');
+        }
+
+        idiomLib.reset();
+
+        const now = Date.now();
+        const session: GameSession = {
+            id: `game_${now}`,
+            mode: GameMode.Multiplayer,
+            startTime: now,
+            messages: [],
+            score: 0,
+            isActive: true,
+            players: players.map((p, index) => ({ ...p, turnOrder: index })),
+            currentPlayerIndex: 0
+        };
+
+        setCurrentSession(session);
+        setCurrentTurnStartTime(now);
+        saveCurrentSession(session);
+
+        console.info('[useGameState] Multiplayer game started with', players.length, 'players');
+    }, [saveCurrentSession]);
+
     const state: GameState = {
         currentSession,
         sessions: [...sessions].sort((a, b) => b.startTime - a.startTime),
@@ -452,7 +605,12 @@ export function useGameState(): [GameState, GameActions] {
         deleteSession,
         clearAllSessions,
         importSessions,
-        triggerComputerTurn
+        triggerComputerTurn,
+        addPlayer,
+        removePlayer,
+        updatePlayerName,
+        getCurrentPlayer,
+        startMultiplayerGame
     };
 
     return [state, actions];

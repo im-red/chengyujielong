@@ -1,0 +1,150 @@
+.player-setup-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: var(--background);
+}
+
+.player-setup-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 16px;
+    overflow: hidden;
+}
+
+.player-input-section {
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.player-input-group {
+    display: flex;
+    gap: 12px;
+}
+
+.player-name-input {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.player-name-input:focus {
+    border-color: #2196f3;
+}
+
+.player-setup-error {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: #ffebee;
+    color: #c62828;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.player-count-info {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #666;
+}
+
+.player-list {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.player-list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.player-list-item:hover {
+    background-color: #fafafa;
+}
+
+.player-list-item:last-child {
+    border-bottom: none;
+}
+
+.player-list-item-number {
+    font-size: 16px;
+    font-weight: bold;
+    color: #999;
+    min-width: 24px;
+}
+
+.player-list-item-name {
+    flex: 1;
+    font-size: 16px;
+    color: #333;
+}
+
+.btn-remove-player {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #999;
+    font-size: 24px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-remove-player:hover {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.player-list-empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+}
+
+.btn-start-game {
+    flex-shrink: 0;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .player-setup-content {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .player-input-section {
+        padding: 12px;
+    }
+
+    .player-input-group {
+        flex-direction: column;
+    }
+
+    .player-name-input {
+        font-size: 16px;
+    }
+}

@@ -58,7 +58,7 @@ test.describe('Modal Focus Management', () => {
         await expect(input).toBeFocused();
         console.log('[Test] ✓ Input maintains focus after modal opens');
 
-        await page.click('#candidates-modal');
+        await page.click('.close-modal');
         await page.waitForTimeout(200);
 
         await expect(input).toBeFocused();

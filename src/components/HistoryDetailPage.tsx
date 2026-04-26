@@ -1,5 +1,6 @@
 import { GameSession, GameMode } from '../types';
 import MessageBubble from './MessageBubble';
+import ScoreBoard from './ScoreBoard';
 
 interface HistoryDetailPageProps {
     session: GameSession;
@@ -17,7 +18,8 @@ function HistoryDetailPage({
     const modeNames = {
         [GameMode.Endless]: '无尽模式',
         [GameMode.Challenge]: '挑战模式',
-        [GameMode.LimitedTime]: '限时模式'
+        [GameMode.LimitedTime]: '限时模式',
+        [GameMode.Multiplayer]: '多人模式'
     };
 
     let modeDisplay = modeNames[session.mode];
@@ -75,10 +77,12 @@ function HistoryDetailPage({
             </header>
 
             <div className="history-detail-summary">
-                <div className="summary-item">
-                    <span className="summary-label">得分</span>
-                    <span className="summary-value">{session.score}</span>
-                </div>
+                {session.mode !== GameMode.Multiplayer && (
+                    <div className="summary-item">
+                        <span className="summary-label">得分</span>
+                        <span className="summary-value">{session.score}</span>
+                    </div>
+                )}
                 <div className="summary-item">
                     <span className="summary-label">回合</span>
                     <span className="summary-value">{session.messages.length}</span>
@@ -93,17 +97,27 @@ function HistoryDetailPage({
                 </div>
             </div>
 
+            {session.mode === GameMode.Multiplayer && session.players && (
+                <div style={{ padding: '0 1rem' }}>
+                    <ScoreBoard players={session.players} compact={true} />
+                </div>
+            )}
+
             <div className="chat-container">
-                {session.messages.map((msg, index) => (
-                    <MessageBubble
-                        key={`${msg.timestamp}-${index}`}
-                        message={msg}
-                        isFirst={index === 0}
-                        mode={session.mode}
-                        onShowDetail={onShowDetail}
-                        onShowCandidates={onShowCandidates}
-                    />
-                ))}
+                {session.messages.map((msg, index) => {
+                    const player = session.players?.find(p => p.id === msg.playerId);
+                    return (
+                        <MessageBubble
+                            key={`${msg.timestamp}-${index}`}
+                            message={msg}
+                            isFirst={index === 0}
+                            mode={session.mode}
+                            onShowDetail={onShowDetail}
+                            onShowCandidates={onShowCandidates}
+                            player={player}
+                        />
+                    );
+                })}
             </div>
         </div>
     );

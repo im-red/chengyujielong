@@ -9,12 +9,14 @@ import type { PluginListenerHandle } from '@capacitor/core';
 import { useGameState } from './hooks/useGameState';
 import { usePinyinPatches } from './hooks/usePinyinPatches';
 import { useFavorites } from './hooks/useFavorites';
-import { GameMode, ChallengeConfig, LimitedTimeConfig } from './types';
+import { GameMode, ChallengeConfig, LimitedTimeConfig, Player } from './types';
 import { idiomLib } from './idiomLib';
 import HomePage from './components/HomePage';
 import GamePage from './components/GamePage';
 import ChallengeConfigPage from './components/ChallengeConfigPage';
 import LimitedTimeConfigPage from './components/LimitedTimeConfigPage';
+import PlayerSetupPage from './components/PlayerSetupPage';
+import MultiplayerGamePage from './components/MultiplayerGamePage';
 import DetailModal from './components/DetailModal';
 import CandidatesModal from './components/CandidatesModal';
 import GameOverModal from './components/GameOverModal';
@@ -26,7 +28,7 @@ import FavoritesPage from './components/FavoritesPage';
 import SettingsPage from './components/SettingsPage';
 import AboutPage from './components/AboutPage';
 
-type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'historyDetail' | 'pinyinPatch' | 'idiomLibrary' | 'trend' | 'favorites' | 'settings' | 'about';
+type ViewType = 'home' | 'game' | 'challengeConfig' | 'limitedTimeConfig' | 'playerSetup' | 'multiplayerGame' | 'historyDetail' | 'pinyinPatch' | 'idiomLibrary' | 'trend' | 'favorites' | 'settings' | 'about';
 
 function App() {
     const [view, setView] = useState<ViewType>('home');
@@ -101,6 +103,14 @@ function App() {
                     return;
                 }
                 if (view === 'limitedTimeConfig') {
+                    setView('home');
+                    return;
+                }
+                if (view === 'playerSetup') {
+                    setView('home');
+                    return;
+                }
+                if (view === 'multiplayerGame') {
                     setView('home');
                     return;
                 }
@@ -186,6 +196,15 @@ function App() {
     const handleSelectEndlessMode = useCallback(() => {
         handleStartGame(GameMode.Endless);
     }, [handleStartGame]);
+
+    const handleSelectMultiplayerMode = useCallback(() => {
+        setView('playerSetup');
+    }, []);
+
+    const handleStartMultiplayerGame = useCallback((players: Player[]) => {
+        gameActions.startMultiplayerGame(players);
+        setView('multiplayerGame');
+    }, [gameActions]);
 
     const handleViewSession = useCallback((sessionId: string) => {
         setSelectedSessionId(sessionId);
@@ -286,6 +305,7 @@ function App() {
                     onSelectEndlessMode={handleSelectEndlessMode}
                     onSelectChallengeMode={handleSelectChallengeMode}
                     onSelectLimitedTimeMode={handleSelectLimitedTimeMode}
+                    onSelectMultiplayerMode={handleSelectMultiplayerMode}
                     onDeleteSession={gameActions.deleteSession}
                     onClearAllSessions={gameActions.clearAllSessions}
                     onViewSession={handleViewSession}
@@ -317,6 +337,13 @@ function App() {
                 />
             )}
 
+            {view === 'playerSetup' && (
+                <PlayerSetupPage
+                    onBack={() => setView('home')}
+                    onStartGame={handleStartMultiplayerGame}
+                />
+            )}
+
             {view === 'game' && gameState.currentSession && (
                 <GamePage
                     session={gameState.currentSession}
@@ -331,6 +358,20 @@ function App() {
                     onShowDetail={handleShowDetail}
                     onShowCandidates={handleShowCandidates}
                     onGameOver={handleGameOver}
+                />
+            )}
+
+            {view === 'multiplayerGame' && gameState.currentSession && gameState.currentSession.mode === GameMode.Multiplayer && (
+                <MultiplayerGamePage
+                    session={gameState.currentSession}
+                    currentTurnStartTime={gameState.currentTurnStartTime}
+                    onBack={() => setView('home')}
+                    onSubmitIdiom={gameActions.submitIdiom}
+                    onGiveUp={gameActions.giveUp}
+                    onShowDetail={handleShowDetail}
+                    onShowCandidates={handleShowCandidates}
+                    onGameOver={handleGameOver}
+                    getCurrentPlayer={gameActions.getCurrentPlayer}
                 />
             )}
 

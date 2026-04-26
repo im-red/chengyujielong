@@ -7,6 +7,7 @@ interface HomePageProps {
     onSelectEndlessMode: () => void;
     onSelectChallengeMode: () => void;
     onSelectLimitedTimeMode: () => void;
+    onSelectMultiplayerMode: () => void;
     onDeleteSession: (sessionId: string) => void;
     onClearAllSessions: () => void;
     onViewSession: (sessionId: string) => void;
@@ -28,6 +29,7 @@ function HomePage({
     onSelectEndlessMode,
     onSelectChallengeMode,
     onSelectLimitedTimeMode,
+    onSelectMultiplayerMode,
     onDeleteSession,
     onClearAllSessions,
     onViewSession,
@@ -226,6 +228,12 @@ function HomePage({
                         <h3>挑战模式</h3>
                         <p>自定义生命和时限</p>
                     </div>
+
+                    <div className="mode-card" data-mode={GameMode.Multiplayer} onClick={onSelectMultiplayerMode}>
+                        <div className="mode-icon">👥</div>
+                        <h3>多人模式</h3>
+                        <p>好友同屏，轮流接龙</p>
+                    </div>
                 </div>
 
                 <div className="history-section">
@@ -268,7 +276,8 @@ function SessionCard({ session, onDelete, onView }: { session: GameSession; onDe
     const modeNames = {
         [GameMode.Endless]: '无尽',
         [GameMode.Challenge]: '挑战',
-        [GameMode.LimitedTime]: '限时'
+        [GameMode.LimitedTime]: '限时',
+        [GameMode.Multiplayer]: '多人'
     };
 
     let configStr = '';

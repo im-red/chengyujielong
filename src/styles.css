@@ -350,7 +350,7 @@ body {
 }
 
 .session-date {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: var(--text-muted);
 }
 
@@ -516,6 +516,20 @@ body {
   animation: slideIn 0.3s ease-out;
 }
 
+.message-player-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.message-player-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -539,6 +553,33 @@ body {
 
 .computer-message {
   align-items: flex-start;
+}
+
+.multiplayer-message {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.multiplayer-message .message-content-wrapper {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: calc(80% - 48px);
+}
+
+.multiplayer-message .message-bubble {
+  background: var(--background);
+  color: var(--text-main);
+  border-radius: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.message-content-wrapper {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 80%;
 }
 
 .message-time {
@@ -578,7 +619,7 @@ body {
 }
 
 .message-bubble {
-  max-width: 70%;
+  max-width: 100%;
   padding: 0.75rem 1rem;
   border-radius: 18px;
   font-size: 1.125rem;
@@ -588,8 +629,10 @@ body {
   transition: opacity 0.2s;
   position: relative;
   min-height: 44px;
-  display: flex;
-  align-items: center;
+  display: inline-block;
+  word-break: break-word;
+  text-align: center;
+  line-height: 1.5;
 }
 
 .user-message .message-bubble {
@@ -1261,8 +1304,9 @@ body {
 }
 
 .summary-date {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
 }
 
 @media (max-width: 360px) {
