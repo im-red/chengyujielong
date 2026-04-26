@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Chengyu Jielong</string>
-    <string name="title_activity_main">Chengyu Jielong</string>
+    <string name="app_name">成语接龙</string>
+    <string name="title_activity_main">成语接龙</string>
     <string name="package_name">com.chengyujielong.app</string>
     <string name="custom_url_scheme">com.chengyujielong.app</string>
 </resources>

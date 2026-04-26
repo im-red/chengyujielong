@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
     appId: 'com.chengyujielong.app',
-    appName: 'Chengyu Jielong',
+    appName: '成语接龙',
     webDir: 'dist',
     server: {
         androidScheme: 'https'
