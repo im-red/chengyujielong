@@ -151,9 +151,9 @@ function DetailModal({ idiom, onClose, onAddPatch, onRemovePatch, getPatch, sear
                             {item && (
                                 <>
                                     <p><strong>拼音:</strong> {highlightText(pinyin, searchQuery || '', false)}{patchInfo}</p>
-                                    <p><strong>出处:</strong> {highlightText(item.derivation, searchQuery || '', false)}</p>
-                                    <p><strong>释义:</strong> {highlightText(item.explanation, searchQuery || '', false)}</p>
-                                    <p><strong>例子:</strong> {highlightText(item.example, searchQuery || '', false)}</p>
+                                    <p><strong>出处:</strong> {item.derivation ? highlightText(item.derivation, searchQuery || '', false) : '无'}</p>
+                                    <p><strong>释义:</strong> {item.explanation ? highlightText(item.explanation, searchQuery || '', false) : '无'}</p>
+                                    <p><strong>例子:</strong> {item.example ? highlightText(item.example, searchQuery || '', false) : '无'}</p>
                                 </>
                             )}
                         </div>
