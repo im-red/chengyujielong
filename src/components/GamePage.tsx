@@ -104,10 +104,8 @@ function GamePage({
     }, [session.isActive, onGameOver]);
 
     const handleSubmit = useCallback(async () => {
-        const success = await submitIdiom(input);
-        if (success) {
-            setInput('');
-        }
+        await submitIdiom(input);
+        setInput('');
     }, [input, submitIdiom]);
 
     const handleGiveUp = useCallback(async () => {
