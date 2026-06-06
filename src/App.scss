@@ -293,3 +293,7 @@ ion-modal.dialog-modal-darkened::part(content) {
 .ion-page > ion-footer {
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
 }
+
+ion-content {
+  overflow-y: auto;
+}
