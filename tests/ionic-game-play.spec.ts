@@ -78,7 +78,8 @@ test.describe('Core Game Mechanics with Ionic', () => {
         await page.locator('text=限时模式').first().click();
         await page.waitForTimeout(500);
         const title = page.locator('ion-router-outlet > .ion-page:not(.ion-page-hidden) ion-title').first();
-        expect(await title.textContent()).toContain('限时模式');
+        const textContent = await title.textContent();
+        expect(textContent).toContain('限时模式');
     });
 
     test('TC-IONIC-GAME-009: Limited time mode config has start button', async ({ page }) => {

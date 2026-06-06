@@ -96,7 +96,7 @@ test.describe('Settings Page with Ionic', () => {
         await navigateViaMenu(page, '设置');
         const aboutOption = page.locator('ion-router-outlet > .ion-page:not(.ion-page-hidden) ion-item').filter({ hasText: '关于' }).first();
         await aboutOption.click();
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(1000); // Increased timeout for navigation animation
 
         const title = page.locator('ion-router-outlet > .ion-page:not(.ion-page-hidden) ion-title').first();
         expect(await title.textContent()).toBe('关于');

@@ -236,6 +236,19 @@ ion-modal.dialog-modal {
   --backdrop-opacity: 0.5;
 }
 
+ion-modal.detail-modal {
+  padding: 0.25rem;
+}
+
+ion-modal.dialog-modal-darkened {
+  --backdrop-opacity: 0.8;
+}
+
+ion-modal.dialog-modal-darkened::part(content) {
+  filter: brightness(0.7);
+  transition: filter 0.3s ease;
+}
+
 .dialog-container {
   display: flex;
   flex-direction: column;

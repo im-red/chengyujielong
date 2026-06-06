@@ -182,6 +182,48 @@ test.describe('Candidate Modal Stats on Mobile', () => {
             await page.waitForTimeout(300);
 
             console.log('[Test] ✓ Stat item tapped');
+
+            const candidateItem = modal.locator('.candidate-item').first();
+            if (await candidateItem.isVisible().catch(() => false)) {
+                // Perform long press on candidate item
+                await candidateItem.evaluate((el) => {
+                    const touchStartEvent = new TouchEvent('touchstart', {
+                        bubbles: true,
+                        cancelable: true,
+                        touches: [new Touch({
+                            identifier: 0,
+                            target: el,
+                            clientX: el.getBoundingClientRect().left + el.offsetWidth / 2,
+                            clientY: el.getBoundingClientRect().top + el.offsetHeight / 2
+                        })]
+                    });
+                    el.dispatchEvent(touchStartEvent);
+                });
+                
+                await page.waitForTimeout(600); // Wait for long press threshold
+                
+                // End touch
+                await candidateItem.evaluate((el) => {
+                    const touchEndEvent = new TouchEvent('touchend', {
+                        bubbles: true,
+                        cancelable: true,
+                        changedTouches: [new Touch({
+                            identifier: 0,
+                            target: el,
+                            clientX: el.getBoundingClientRect().left + el.offsetWidth / 2,
+                            clientY: el.getBoundingClientRect().top + el.offsetHeight / 2
+                        })]
+                    });
+                    el.dispatchEvent(touchEndEvent);
+                });
+
+                await page.waitForTimeout(300);
+                
+                // Check if it got the favorite class
+                const isFav = await candidateItem.evaluate((el) => el.classList.contains('candidate-item-favorite'));
+                expect(isFav).toBe(true);
+                console.log('[Test] ✓ Candidate item favorited on long press');
+            }
         }
 
         await context.close();

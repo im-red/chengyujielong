@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { idiomLib } from '../util/idiomLib';
 import './CandidatesModal.scss';
 
@@ -10,9 +10,13 @@ interface CandidatesModalProps {
     toggleFavorite: (idiom: string) => void;
 }
 
-function CandidatesModal({ idiom, onShowDetail, isFavorite }: CandidatesModalProps) {
+function CandidatesModal({ idiom, onShowDetail, isFavorite, toggleFavorite }: CandidatesModalProps) {
     const [selectedType, setSelectedType] = useState<string | null>(null);
     const [snapshotFavorites, setSnapshotFavorites] = useState<string[]>([]);
+
+    // For long press detection
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const isLongPressRef = useRef(false);
 
     const { allCandidates, usedCandidates, unusedCandidates } = useMemo(() => {
         if (!idiom) {
@@ -35,8 +39,45 @@ function CandidatesModal({ idiom, onShowDetail, isFavorite }: CandidatesModalPro
         setSelectedType(type);
     };
 
-    const handleCandidateClick = (candidateIdiom: string) => {
+    const handleCandidateClick = (candidateIdiom: string, e: React.MouseEvent) => {
+        if (isLongPressRef.current) {
+            e.preventDefault();
+            e.stopPropagation();
+            setTimeout(() => {
+                isLongPressRef.current = false;
+            }, 100);
+            return;
+        }
         onShowDetail(candidateIdiom);
+    };
+
+    const startPress = (candidateIdiom: string) => {
+        if (isLongPressRef.current) return;
+        isLongPressRef.current = false;
+        timerRef.current = setTimeout(() => {
+            isLongPressRef.current = true;
+            toggleFavorite(candidateIdiom);
+
+            // Optional: provide haptic feedback if running on device
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }, 500); // 500ms for long press
+    };
+
+    const handleTouchStart = (candidateIdiom: string) => {
+        startPress(candidateIdiom);
+    };
+
+    const handleMouseDown = (candidateIdiom: string) => {
+        startPress(candidateIdiom);
+    };
+
+    const handleEnd = () => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+            timerRef.current = null;
+        }
     };
 
     const getCandidatesForType = () => {
@@ -98,7 +139,13 @@ function CandidatesModal({ idiom, onShowDetail, isFavorite }: CandidatesModalPro
                         {candidates.map(c => (
                             <div
                                 key={c}
-                                onClick={() => handleCandidateClick(c)}
+                                onClick={(e) => handleCandidateClick(c, e)}
+                                onTouchStart={() => handleTouchStart(c)}
+                                onTouchEnd={handleEnd}
+                                onTouchMove={handleEnd}
+                                onMouseDown={() => handleMouseDown(c)}
+                                onMouseUp={handleEnd}
+                                onMouseLeave={handleEnd}
                                 className={`candidate-item ${isFavorite(c) ? 'candidate-item-favorite' : 'candidate-item-normal'}`}
                             >
                                 {c}

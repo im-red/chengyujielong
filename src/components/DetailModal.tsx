@@ -122,12 +122,14 @@ function DetailModal({ idiom, onAddPatch, onRemovePatch, getPatch, searchQuery, 
                         </div>
                     </div>
                 ) : (
-                    <button
-                        onClick={handleStartEdit}
-                        className="patch-edit-start"
-                    >
-                        {existingPatch ? '✏️ 修改拼音' : '✏️ 修正拼音'}
-                    </button>
+                    <div className="patch-edit-start-wrapper">
+                        <button
+                            onClick={handleStartEdit}
+                            className="patch-edit-start"
+                        >
+                            {existingPatch ? '✏️ 修改拼音' : '✏️ 修正拼音'}
+                        </button>
+                    </div>
                 )}
             </div>
         </div>

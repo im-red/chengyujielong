@@ -73,7 +73,7 @@ const Modals: React.FC = () => {
     <>
       {detailModalIdiom && (
         <IonModal
-          className="dialog-modal"
+          className="dialog-modal detail-modal"
           isOpen={true}
           onDidDismiss={() => setDetailModalIdiom(null)}
         >
@@ -107,7 +107,7 @@ const Modals: React.FC = () => {
 
       {candidatesModalIdiom && (
         <IonModal
-          className="dialog-modal"
+          className={`dialog-modal ${detailModalIdiom ? 'dialog-modal-darkened' : ''}`}
           isOpen={true}
           onDidDismiss={() => setCandidatesModalIdiom(null)}
         >
