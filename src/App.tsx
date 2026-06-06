@@ -139,7 +139,7 @@ const Modals: React.FC = () => {
   );
 };
 
-const AppContent: React.FC = () => {
+const App: React.FC = () => {
   React.useEffect(() => {
     const hideSplash = async () => {
       try {
@@ -152,34 +152,26 @@ const AppContent: React.FC = () => {
   }, []);
 
   return (
-    <>
-      <BackButtonHandler />
-      <SideMenu />
-      <IonRouterOutlet id="main">
-        <Route exact path="/" component={HomePage} />
-        <Route exact path="/game" component={GamePage} />
-        <Route exact path="/limited-time-config" component={LimitedTimeConfigPage} />
-        <Route exact path="/player-setup" component={PlayerSetupPage} />
-        <Route exact path="/multiplayer-game" component={MultiplayerGamePage} />
-        <Route exact path="/history/:sessionId" component={HistoryDetailPage} />
-        <Route exact path="/pinyin-patch" component={PinyinPatchPage} />
-        <Route exact path="/idiom-library" component={IdiomLibraryPage} />
-        <Route exact path="/trend" component={TrendPage} />
-        <Route exact path="/favorites" component={FavoritesPage} />
-        <Route exact path="/settings" component={SettingsPage} />
-        <Route exact path="/about" component={AboutPage} />
-      </IonRouterOutlet>
-      <Modals />
-    </>
-  );
-};
-
-const App: React.FC = () => {
-  return (
     <IonApp>
       <AppProvider>
         <IonReactRouter>
-          <AppContent />
+          <BackButtonHandler />
+          <SideMenu />
+          <IonRouterOutlet id="main">
+            <Route exact path="/" component={HomePage} />
+            <Route exact path="/game" component={GamePage} />
+            <Route exact path="/limited-time-config" component={LimitedTimeConfigPage} />
+            <Route exact path="/player-setup" component={PlayerSetupPage} />
+            <Route exact path="/multiplayer-game" component={MultiplayerGamePage} />
+            <Route exact path="/history/:sessionId" component={HistoryDetailPage} />
+            <Route exact path="/pinyin-patch" component={PinyinPatchPage} />
+            <Route exact path="/idiom-library" component={IdiomLibraryPage} />
+            <Route exact path="/trend" component={TrendPage} />
+            <Route exact path="/favorites" component={FavoritesPage} />
+            <Route exact path="/settings" component={SettingsPage} />
+            <Route exact path="/about" component={AboutPage} />
+          </IonRouterOutlet>
+          <Modals />
         </IonReactRouter>
       </AppProvider>
     </IonApp>

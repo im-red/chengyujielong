@@ -16,7 +16,7 @@ test.describe('Favorites Feature with Ionic', () => {
 
     test('TC-IONIC-FAV-002: Empty favorites page shows placeholder text', async ({ page }) => {
         await navigateViaMenu(page, '收藏夹');
-        const content = page.locator('ion-router-outlet ion-content').first();
+        const content = page.locator('ion-router-outlet > .ion-page:not(.ion-page-hidden) ion-content').first();
         const text = await content.textContent();
         expect(text).toContain('暂无收藏的成语');
     });
@@ -83,7 +83,7 @@ test.describe('Favorites Feature with Ionic', () => {
 
         await navigateViaMenu(page, '收藏夹');
 
-        const content = page.locator('ion-router-outlet ion-content').first();
+        const content = page.locator('ion-router-outlet > .ion-page:not(.ion-page-hidden) ion-content').first();
         const text = await content.textContent();
         expect(text).toContain(idiomText);
     });

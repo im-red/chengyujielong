@@ -15,7 +15,7 @@ test.describe('Idiom Library with Ionic', () => {
 
     test('TC-IONIC-LIB-002: Idiom library shows total count', async ({ page }) => {
         await navigateViaMenu(page, '成语词典');
-        const content = page.locator('ion-router-outlet ion-content').first();
+        const content = page.locator('ion-router-outlet > .ion-page:not(.ion-page-hidden) ion-content').first();
         const text = await content.textContent();
         expect(text).toContain('共');
         expect(text).toContain('个成语');
@@ -30,14 +30,14 @@ test.describe('Idiom Library with Ionic', () => {
     test('TC-IONIC-LIB-004: Search filters idiom list', async ({ page }) => {
         await navigateViaMenu(page, '成语词典');
 
-        const initialItems = page.locator('ion-router-outlet ion-content').locator('.message-bubble, div').first();
+        const initialItems = page.locator('ion-router-outlet > .ion-page:not(.ion-page-hidden) ion-content').locator('.message-bubble, div').first();
         await expect(initialItems).toBeVisible();
 
         const searchbar = page.locator('ion-searchbar input');
         await searchbar.fill('一心一意');
         await page.waitForTimeout(500);
 
-        const content = page.locator('ion-router-outlet ion-content').first();
+        const content = page.locator('ion-router-outlet > .ion-page:not(.ion-page-hidden) ion-content').first();
         const text = await content.textContent();
         expect(text).toContain('一心一意');
     });
@@ -57,9 +57,7 @@ test.describe('Idiom Library with Ionic', () => {
     test('TC-IONIC-LIB-007: Clicking idiom in library opens detail modal', async ({ page }) => {
         await navigateViaMenu(page, '成语词典');
 
-        await page.waitForTimeout(300);
-
-        const idiomItems = page.locator('ion-router-outlet ion-content').locator('div').filter({ hasText: /[\u4e00-\u9fff]{4}/ });
+        const idiomItems = page.locator('ion-router-outlet > .ion-page:not(.ion-page-hidden) ion-content').locator('div').filter({ hasText: /^[\u4e00-\u9fff]{4}$/ });
         const count = await idiomItems.count();
 
         if (count > 0) {

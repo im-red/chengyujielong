@@ -31,7 +31,7 @@ const SideMenu: React.FC = () => {
       <IonContent>
         <IonList lines="full">
           <IonMenuToggle autoHide={false}>
-            <IonItem button routerLink="/favorites" routerDirection="root">
+            <IonItem button routerLink="/favorites" routerDirection="none">
               <IonIcon icon={star} slot="start" />
               <IonLabel>收藏夹</IonLabel>
               {favoritesCount > 0 && (
@@ -40,19 +40,19 @@ const SideMenu: React.FC = () => {
             </IonItem>
           </IonMenuToggle>
           <IonMenuToggle autoHide={false}>
-            <IonItem button routerLink="/trend" routerDirection="root">
+            <IonItem button routerLink="/trend" routerDirection="none">
               <IonIcon icon={trendingUp} slot="start" />
               <IonLabel>成绩趋势</IonLabel>
             </IonItem>
           </IonMenuToggle>
           <IonMenuToggle autoHide={false}>
-            <IonItem button routerLink="/idiom-library" routerDirection="root">
+            <IonItem button routerLink="/idiom-library" routerDirection="none">
               <IonIcon icon={book} slot="start" />
               <IonLabel>成语词典</IonLabel>
             </IonItem>
           </IonMenuToggle>
           <IonMenuToggle autoHide={false}>
-            <IonItem button routerLink="/pinyin-patch" routerDirection="root">
+            <IonItem button routerLink="/pinyin-patch" routerDirection="none">
               <IonIcon icon={create} slot="start" />
               <IonLabel>拼音修正</IonLabel>
               {patchesCount > 0 && (
@@ -61,19 +61,19 @@ const SideMenu: React.FC = () => {
             </IonItem>
           </IonMenuToggle>
           <IonMenuToggle autoHide={false}>
-            <IonItem button onClick={() => exportData()} routerDirection="none">
+            <IonItem button onClick={() => exportData()}>
               <IonIcon icon={cloudUpload} slot="start" />
               <IonLabel>导出数据</IonLabel>
             </IonItem>
           </IonMenuToggle>
           <IonMenuToggle autoHide={false}>
-            <IonItem button onClick={() => importData()} routerDirection="none">
+            <IonItem button onClick={() => importData()}>
               <IonIcon icon={cloudDownload} slot="start" />
               <IonLabel>导入数据</IonLabel>
             </IonItem>
           </IonMenuToggle>
           <IonMenuToggle autoHide={false}>
-            <IonItem button routerLink="/settings" routerDirection="root">
+            <IonItem button routerLink="/settings" routerDirection="none">
               <IonIcon icon={settings} slot="start" />
               <IonLabel>设置</IonLabel>
             </IonItem>
