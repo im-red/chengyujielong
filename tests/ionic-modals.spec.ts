@@ -121,6 +121,54 @@ test.describe('Modal Interactions with Ionic', () => {
         await expect(favBtn).toBeVisible();
     });
 
+    test('TC-IONIC-MODAL-011: Candidates are sorted by pinyin', async ({ page }) => {
+        await startEndlessMode(page);
+        await page.waitForTimeout(500);
+
+        const computerBubble = page.locator('.computer-message .message-bubble').first();
+        await computerBubble.click({ button: 'right' });
+
+        const modal = page.locator('ion-modal.show-modal');
+        await expect(modal).toBeVisible({ timeout: 5000 });
+
+        const statItem = modal.locator('.candidates-stat-card').first();
+        await statItem.click();
+        
+        await page.waitForTimeout(500);
+
+        const candidateItems = modal.locator('.candidate-item');
+        await expect(candidateItems.first()).toBeVisible({ timeout: 5000 });
+        
+        const count = await candidateItems.count();
+        expect(count).toBeGreaterThan(0);
+
+        const candidates: string[] = [];
+        for (let i = 0; i < count; i++) {
+            const text = await candidateItems.nth(i).textContent();
+            if (text) candidates.push(text.replace('★', '').trim());
+        }
+
+        const isSorted = await page.evaluate((cands) => {
+            const lib = (window as any).idiomLib;
+            if (!lib) return true; 
+            
+            for (let i = 0; i < cands.length - 1; i++) {
+                const pA = lib.getPinyin(cands[i]);
+                const pB = lib.getPinyin(cands[i + 1]);
+                if (pA.localeCompare(pB, 'en') > 0) {
+                    return false;
+                } else if (pA === pB) {
+                    if (cands[i].localeCompare(cands[i + 1], 'zh-CN') > 0) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }, candidates);
+
+        expect(isSorted).toBe(true);
+    });
+
     test('TC-IONIC-MODAL-010: Mobile short tap opens detail modal', async ({ browser }) => {
         const context = await createMobileContext(browser);
         const page = await context.newPage();

@@ -22,10 +22,25 @@ function CandidatesModal({ idiom, onShowDetail, isFavorite, toggleFavorite }: Ca
         if (!idiom) {
             return { allCandidates: [], usedCandidates: [], unusedCandidates: [] };
         }
+
+        const sortByPinyin = (a: string, b: string) => {
+            const pinyinA = idiomLib.getPinyin(a);
+            const pinyinB = idiomLib.getPinyin(b);
+            if (pinyinA === pinyinB) {
+                return a.localeCompare(b, 'zh-CN');
+            }
+            return pinyinA.localeCompare(pinyinB, 'en');
+        };
+
         const all = idiomLib.getCandidateList(idiom);
         const unused = idiomLib.getUnusedCandidateList(idiom);
         const used = all.filter(c => !unused.includes(c));
-        return { allCandidates: all, usedCandidates: used, unusedCandidates: unused };
+
+        return {
+            allCandidates: all.sort(sortByPinyin),
+            usedCandidates: used.sort(sortByPinyin),
+            unusedCandidates: unused.sort(sortByPinyin)
+        };
     }, [idiom]);
 
     useEffect(() => {
