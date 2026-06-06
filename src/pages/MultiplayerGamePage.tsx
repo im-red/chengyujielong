@@ -56,10 +56,12 @@ const MultiplayerGamePage: React.FC = () => {
   const wasActiveRef = useRef(session.isActive);
   useEffect(() => {
     if (wasActiveRef.current && !session.isActive) {
+      setDetailModalIdiom(null);
+      setCandidatesModalIdiom(null);
       setIsGameOverModalOpen(true);
     }
     wasActiveRef.current = session.isActive;
-  }, [session.isActive]);
+  }, [session.isActive, setDetailModalIdiom, setCandidatesModalIdiom]);
 
   const handleSubmit = useCallback(async () => {
     await submitIdiom(input);
