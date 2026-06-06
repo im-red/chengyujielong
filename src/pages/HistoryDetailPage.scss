@@ -1,0 +1,29 @@
+.history-detail-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  padding: 1rem;
+  background: white;
+  border-bottom: 1px solid var(--ion-color-step-150);
+}
+
+.history-stat-label {
+  font-size: 0.75rem;
+  color: var(--ion-color-medium);
+}
+
+.history-stat-value {
+  font-weight: 600;
+}
+
+.history-stat-date {
+  font-weight: 600;
+}
+
+.history-scoreboard {
+  padding: 0.5rem 1rem;
+}
+
+.history-messages {
+  padding: 0.75rem;
+}

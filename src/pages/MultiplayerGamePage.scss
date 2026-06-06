@@ -1,0 +1,79 @@
+.multiplayer-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.multiplayer-turn-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: white;
+  border-bottom: 1px solid var(--ion-color-step-150);
+  flex-shrink: 0;
+}
+
+.multiplayer-turn-name {
+  font-weight: 600;
+}
+
+.multiplayer-turn-time {
+  margin-left: auto;
+  color: var(--ion-color-medium);
+}
+
+.multiplayer-chat-wrapper {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.multiplayer-start-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  text-align: center;
+  background: #f0fdf4;
+  margin: 1rem;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.multiplayer-start-hint {
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
+}
+
+.multiplayer-game-over-container {
+  text-align: center;
+  padding-top: 1rem;
+}
+
+.multiplayer-btn-home {
+  margin-top: 1rem;
+  padding: 0.75rem 2rem;
+  background: var(--ion-color-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.multiplayer-input-header {
+  padding: 0.5rem 1rem 0;
+}
+
+.multiplayer-input-player {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.multiplayer-input-player-name {
+  font-weight: 500;
+  font-size: 0.9rem;
+}

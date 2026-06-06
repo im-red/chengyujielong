@@ -1,0 +1,76 @@
+.library-search-container {
+  padding: 0.75rem 1rem;
+}
+
+.library-filter-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.library-filter-btn {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  border: 1px solid var(--ion-color-step-150);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.library-filter-btn.active {
+  background: var(--ion-color-primary);
+  color: white;
+}
+
+.library-filter-btn.inactive {
+  background: transparent;
+  color: var(--ion-text-color);
+}
+
+.library-stats {
+  padding: 0 1rem;
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
+}
+
+.library-list-container {
+  padding: 0.5rem 1rem;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.library-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--ion-color-medium);
+}
+
+.library-item {
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid var(--ion-color-step-150);
+  cursor: pointer;
+}
+
+.library-item-word {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.library-item-pinyin {
+  font-size: 0.85rem;
+  color: var(--ion-color-primary);
+}
+
+.library-item-explanation {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+  margin-top: 0.25rem;
+}
+
+.library-loading-more {
+  text-align: center;
+  padding: 1rem;
+  color: var(--ion-color-medium);
+}

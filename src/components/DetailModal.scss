@@ -1,0 +1,86 @@
+.detail-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.detail-modal-title {
+    margin: 0;
+    flex: 1;
+}
+
+.favorite-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--ion-color-step-400);
+}
+
+.favorite-btn.favorited {
+    color: #f59e0b;
+}
+
+.detail-modal-body {
+    margin-bottom: 1rem;
+}
+
+.detail-modal-body p {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+.detail-modal-body strong {
+    font-weight: 600;
+}
+
+.patch-edit-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.patch-edit-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--ion-color-step-150);
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    box-sizing: border-box;
+}
+
+.patch-edit-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.patch-edit-cancel {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid var(--ion-color-step-150);
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    color: var(--ion-text-color);
+}
+
+.patch-edit-save {
+    flex: 1;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--ion-color-primary);
+    color: white;
+    cursor: pointer;
+}
+
+.patch-edit-start {
+    background: none;
+    border: none;
+    color: var(--ion-color-primary);
+    cursor: pointer;
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+}

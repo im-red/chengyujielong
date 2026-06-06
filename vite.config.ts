@@ -1,15 +1,19 @@
+import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-    server: {
-        port: 3002,
-        host: true
+  plugins: [react()],
+  server: {
+    port: 3002,
+    host: true
+  },
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true
+  },
+  resolve: {
+    alias: {
+      '@': '/src',
     },
-    build: {
-        outDir: 'dist',
-        emptyOutDir: true
-    },
-    esbuild: {
-        jsx: 'automatic'
-    }
+  },
 });

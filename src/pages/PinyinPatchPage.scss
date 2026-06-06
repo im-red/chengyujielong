@@ -1,0 +1,78 @@
+.patch-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--ion-color-medium);
+}
+
+.patch-empty-sub {
+  font-size: 0.85rem;
+}
+
+.patch-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.patch-count {
+  color: var(--ion-color-medium);
+}
+
+.btn-clear-patches {
+  background: none;
+  border: none;
+  color: var(--ion-color-danger);
+  cursor: pointer;
+}
+
+.patch-card {
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid var(--ion-color-step-150);
+}
+
+.patch-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.patch-card-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.btn-delete-patch {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.patch-card-details {
+  font-size: 0.85rem;
+}
+
+.patch-label {
+  color: var(--ion-color-medium);
+}
+
+.patch-original {
+  text-decoration: line-through;
+  margin-left: 0.5rem;
+}
+
+.patch-corrected {
+  color: var(--ion-color-primary);
+  margin-left: 0.5rem;
+}
+
+.patch-date {
+  font-size: 0.75rem;
+  color: var(--ion-color-step-400);
+  margin-top: 0.25rem;
+}

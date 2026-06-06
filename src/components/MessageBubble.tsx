@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { GameMessage, RecordType, GameMode, Player } from '../types';
+import { GameMessage, RecordType, GameMode, Player } from '../models';
 import PlayerAvatar from './PlayerAvatar';
 
 interface MessageBubbleProps {

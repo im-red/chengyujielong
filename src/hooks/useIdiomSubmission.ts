@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { RecordType } from '../types';
+import { RecordType } from '../models';
 
 interface UseIdiomSubmissionProps {
     onSubmitIdiom: (input: string) => { success: boolean; error?: string; errorType?: RecordType };

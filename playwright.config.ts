@@ -27,12 +27,8 @@ export default defineConfig({
     },
     projects: [
         {
-            name: 'chromium',
-            use: { ...devices['Desktop Chrome'] },
-        },
-        {
             name: 'Mobile Chrome',
-            use: { ...devices['Pixel 7'] }, // Emulates Android
+            use: { ...devices['Pixel 7'] },
         },
     ],
     webServer: {

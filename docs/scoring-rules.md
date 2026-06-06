@@ -91,4 +91,4 @@ When a player chooses to give up during their turn:
 
 - The scoring system encourages quick thinking while still allowing reasonable time for consideration
 - Negative scores are possible if a player gives up multiple times
-- The scoring applies to endless mode and limited-time mode; challenge mode uses a fixed +10 points per correct answer
+- The scoring applies to endless mode and limited-time mode

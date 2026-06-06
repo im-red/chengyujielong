@@ -1,0 +1,46 @@
+.config-subtitle {
+  color: var(--ion-color-medium);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.config-section {
+  margin-bottom: 2rem;
+}
+
+.config-label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.config-label-title {
+  font-weight: 600;
+}
+
+.config-label-desc {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+  margin-left: 0.5rem;
+}
+
+.config-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.config-input {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem;
+  border: 1px solid var(--ion-color-step-150);
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.config-presets {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}

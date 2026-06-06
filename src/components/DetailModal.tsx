@@ -1,11 +1,12 @@
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { idiomLib } from '../idiomLib';
-import { PinyinPatch } from '../types';
-import { highlightText } from '../utils';
+import { idiomLib } from '../util/idiomLib';
+import { PinyinPatch } from '../models';
+import { highlightText } from '../util/utils';
+import './DetailModal.scss';
 
 interface DetailModalProps {
-    idiom: string | null;
+    idiom: string;
     onClose: () => void;
     onAddPatch: (idiom: string, originalPinyin: string, correctedPinyin: string) => void;
     onRemovePatch: (idiom: string) => void;
@@ -15,9 +16,7 @@ interface DetailModalProps {
     toggleFavorite: (idiom: string) => void;
 }
 
-function DetailModal({ idiom, onClose, onAddPatch, onRemovePatch, getPatch, searchQuery, isFavorite, toggleFavorite }: DetailModalProps) {
-    const modalRef = useRef<HTMLDivElement>(null);
-    const isOpen = idiom !== null;
+function DetailModal({ idiom, onAddPatch, onRemovePatch, getPatch, searchQuery, isFavorite, toggleFavorite }: DetailModalProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedPinyin, setEditedPinyin] = useState('');
 
@@ -35,33 +34,6 @@ function DetailModal({ idiom, onClose, onAddPatch, onRemovePatch, getPatch, sear
             setIsEditing(false);
         }
     }, [idiom, originalPinyin, getPatch]);
-
-    const handleBackdropClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-        if (e.target === modalRef.current) {
-            e.preventDefault();
-            const input = document.getElementById('idiom-input') as HTMLInputElement;
-            if (input) input.focus();
-            onClose();
-        }
-    }, [onClose]);
-
-    const handleKeyDown = useCallback((e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-            onClose();
-        }
-    }, [onClose]);
-
-    const handleMouseDown = useCallback((e: React.MouseEvent) => {
-        if (e.target === modalRef.current) {
-            e.preventDefault();
-        }
-    }, []);
-
-    const handleTouchStart = useCallback((e: React.TouchEvent) => {
-        if (e.target === modalRef.current) {
-            e.preventDefault();
-        }
-    }, []);
 
     const handleStartEdit = useCallback(() => {
         setIsEditing(true);
@@ -87,104 +59,75 @@ function DetailModal({ idiom, onClose, onAddPatch, onRemovePatch, getPatch, sear
         setIsEditing(false);
     }, [idiom, originalPinyin, editedPinyin, onAddPatch, onRemovePatch]);
 
-    useEffect(() => {
-        if (isOpen) {
-            document.addEventListener('keydown', handleKeyDown);
-            return () => document.removeEventListener('keydown', handleKeyDown);
-        }
-    }, [isOpen, handleKeyDown]);
+    if (!idiom) {
+        return null;
+    }
 
     return (
-        <div
-            id="detail-modal"
-            ref={modalRef}
-            className={`modal ${isOpen ? 'show' : ''}`}
-            onClick={handleBackdropClick}
-            onTouchEnd={handleBackdropClick}
-            onMouseDown={handleMouseDown}
-            onTouchStart={handleTouchStart}
-        >
-            <div className="modal-content">
-                {idiom && (
+        <div>
+            <div className="detail-modal-header">
+                <h2 className="detail-modal-title">{highlightText(idiom, searchQuery || '', false)}</h2>
+                <button
+                    type="button"
+                    className={`favorite-btn ${isFavorite(idiom) ? 'favorited' : ''}`}
+                    onClick={async () => {
+                        toggleFavorite(idiom);
+                        try {
+                            await Haptics.impact({ style: ImpactStyle.Medium });
+                        } catch {
+                            // Ignore haptics errors on non-mobile platforms
+                        }
+                    }}
+                    title={isFavorite(idiom) ? '取消收藏' : '添加收藏'}
+                >
+                    {isFavorite(idiom) ? '★' : '☆'}
+                </button>
+            </div>
+
+            <div id="modal-body" className="detail-modal-body">
+                {item && (
                     <>
-                        <div className="modal-header">
-                            <div className="modal-header-title">
-                                <h2>{highlightText(idiom, searchQuery || '', false)}</h2>
-                                <button
-                                    type="button"
-                                    className={`favorite-btn ${isFavorite(idiom) ? 'favorited' : ''}`}
-                                    onClick={async () => {
-                                        toggleFavorite(idiom);
-                                        try {
-                                            await Haptics.impact({ style: ImpactStyle.Medium });
-                                        } catch {
-                                            // Ignore haptics errors on non-mobile platforms
-                                        }
-                                    }}
-                                    onMouseDown={(e) => e.preventDefault()}
-                                    title={isFavorite(idiom) ? '取消收藏' : '添加收藏'}
-                                >
-                                    {isFavorite(idiom) ? '★' : '☆'}
-                                </button>
-                            </div>
+                        <p><strong>拼音:</strong> {highlightText(pinyin, searchQuery || '', false)}{patchInfo}</p>
+                        <p><strong>出处:</strong> {item.derivation ? highlightText(item.derivation, searchQuery || '', false) : '无'}</p>
+                        <p><strong>释义:</strong> {item.explanation ? highlightText(item.explanation, searchQuery || '', false) : '无'}</p>
+                        <p><strong>例子:</strong> {item.example ? highlightText(item.example, searchQuery || '', false) : '无'}</p>
+                    </>
+                )}
+            </div>
+
+            <div>
+                {isEditing ? (
+                    <div>
+                        <label className="patch-edit-label">修正拼音:</label>
+                        <input
+                            type="text"
+                            value={editedPinyin}
+                            onChange={(e) => setEditedPinyin(e.target.value)}
+                            placeholder="输入正确的拼音"
+                            className="patch-edit-input"
+                        />
+                        <div className="patch-edit-actions">
                             <button
-                                type="button"
-                                className="close-modal"
-                                onClick={() => {
-                                    const input = document.getElementById('idiom-input') as HTMLInputElement;
-                                    if (input) input.focus();
-                                    onClose();
-                                }}
-                                onMouseDown={(e) => e.preventDefault()}
-                                onTouchStart={(e) => e.preventDefault()}
-                                onTouchEnd={(e) => {
-                                    e.preventDefault();
-                                    const input = document.getElementById('idiom-input') as HTMLInputElement;
-                                    if (input) input.focus();
-                                    onClose();
-                                }}
+                                onClick={handleCancelEdit}
+                                className="patch-edit-cancel"
                             >
-                                &times;
+                                取消
+                            </button>
+                            <button
+                                onClick={handleSaveEdit}
+                                className="patch-edit-save"
+                            >
+                                保存
                             </button>
                         </div>
-                        <div id="modal-body" className="detail-content">
-                            {item && (
-                                <>
-                                    <p><strong>拼音:</strong> {highlightText(pinyin, searchQuery || '', false)}{patchInfo}</p>
-                                    <p><strong>出处:</strong> {item.derivation ? highlightText(item.derivation, searchQuery || '', false) : '无'}</p>
-                                    <p><strong>释义:</strong> {item.explanation ? highlightText(item.explanation, searchQuery || '', false) : '无'}</p>
-                                    <p><strong>例子:</strong> {item.example ? highlightText(item.example, searchQuery || '', false) : '无'}</p>
-                                </>
-                            )}
-                        </div>
-
-                        <div className="pinyin-edit-section">
-                            {isEditing ? (
-                                <div className="pinyin-edit-form">
-                                    <label className="pinyin-edit-label">修正拼音:</label>
-                                    <input
-                                        type="text"
-                                        className="pinyin-edit-input"
-                                        value={editedPinyin}
-                                        onChange={(e) => setEditedPinyin(e.target.value)}
-                                        placeholder="输入正确的拼音"
-                                    />
-                                    <div className="pinyin-edit-actions">
-                                        <button className="btn btn-secondary" onClick={handleCancelEdit}>
-                                            取消
-                                        </button>
-                                        <button className="btn btn-primary" onClick={handleSaveEdit}>
-                                            保存
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <button className="btn btn-text pinyin-edit-btn" onClick={handleStartEdit}>
-                                    {existingPatch ? '✏️ 修改拼音' : '✏️ 修正拼音'}
-                                </button>
-                            )}
-                        </div>
-                    </>
+                    </div>
+                ) : (
+                    <button
+                        onClick={handleStartEdit}
+                        className="patch-edit-start"
+                    >
+                        {existingPatch ? '✏️ 修改拼音' : '✏️ 修正拼音'}
+                    </button>
                 )}
             </div>
         </div>

@@ -1,0 +1,282 @@
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--ion-color-step-50);
+  color: var(--ion-text-color);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.highlight {
+  color: var(--ion-color-primary);
+  font-weight: 600;
+}
+
+.chat-container {
+  padding: 0.75rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.message {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.computer-message {
+  justify-content: flex-start;
+}
+
+.user-message {
+  justify-content: flex-end;
+}
+
+.multiplayer-message {
+  justify-content: flex-start;
+}
+
+.message-content-wrapper {
+  max-width: 85%;
+}
+
+.message-bubble {
+  display: inline-block;
+  padding: 0.6rem 0.9rem;
+  border-radius: 1rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  word-break: break-all;
+}
+
+.computer-message .message-bubble {
+  background: white;
+  border: 1px solid var(--ion-color-step-150);
+  color: var(--ion-text-color);
+  border-bottom-left-radius: 0.25rem;
+}
+
+.user-message .message-bubble {
+  background: var(--ion-color-primary);
+  color: white;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.multiplayer-message .message-bubble.user-message-bubble {
+  background: var(--ion-color-primary);
+  color: white;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.multiplayer-message .message-bubble {
+  background: white;
+  border: 1px solid var(--ion-color-step-150);
+  color: var(--ion-text-color);
+  border-bottom-left-radius: 0.25rem;
+}
+
+.error-bubble {
+  background: #fef2f2 !important;
+  border-color: #fecaca !important;
+  color: #dc2626 !important;
+}
+
+.no-interact {
+  cursor: default !important;
+}
+
+.give-up-bubble {
+  background: #fef3c7 !important;
+  border-color: #fde68a !important;
+  color: #d97706 !important;
+}
+
+.message-error-reason {
+  font-size: 0.75rem;
+  color: #dc2626;
+  margin-top: 0.15rem;
+  text-align: center;
+}
+
+.message-time {
+  font-size: 0.7rem;
+  color: var(--ion-color-step-400);
+  margin-top: 0.15rem;
+  text-align: center;
+}
+
+.message-score {
+  margin-left: 0.5rem;
+  color: #059669;
+  font-weight: 600;
+}
+
+.message-score-negative {
+  color: #dc2626 !important;
+}
+
+.message-hint {
+  font-size: 0.7rem;
+  color: var(--ion-color-step-400);
+  margin-top: 0.25rem;
+  text-align: center;
+}
+
+.message-player-info {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.15rem;
+}
+
+.message-player-name {
+  font-size: 0.75rem;
+  color: var(--ion-color-medium);
+  font-weight: 500;
+}
+
+.input-section {
+  padding: 0.75rem;
+  background: white;
+  border-top: 1px solid var(--ion-color-step-150);
+}
+
+.input-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 0.6rem 2rem 0.6rem 0.75rem;
+  border: 1px solid var(--ion-color-step-150);
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.input-clear-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--ion-color-step-400);
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--ion-color-primary);
+  color: white;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: var(--ion-text-color);
+  border: 1px solid var(--ion-color-step-150);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--ion-color-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+@media (max-width: 360px) {
+  .message-bubble {
+    font-size: 1rem;
+  }
+}
+
+ion-modal.dialog-modal {
+  --width: min(92%, 480px);
+  --height: auto;
+  --max-height: 85vh;
+  --border-radius: 12px;
+  --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  --backdrop-opacity: 0.5;
+}
+
+.dialog-container {
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1rem 0.5rem;
+  border-bottom: 1px solid var(--ion-color-step-150);
+  flex-shrink: 0;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.dialog-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--ion-color-step-400);
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+}
+
+.dialog-close-btn:hover {
+  color: var(--ion-text-color);
+}
+
+.dialog-body {
+  padding: 1rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.ion-page > ion-footer {
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+}

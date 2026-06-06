@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { idiomLib } from '../idiomLib';
-import { GameSession, GameMode, GameMessage, RecordType, ChallengeConfig, LimitedTimeConfig, Player } from '../types';
+import { idiomLib } from '../util/idiomLib';
+import { GameSession, GameMode, GameMessage, RecordType, LimitedTimeConfig, Player } from '../models';
 import useLocalStorageState from './useLocalStorageState';
-import { generateAvatarColor } from '../utils/generateAvatarColor';
+import { generateAvatarColor } from '../util/generateAvatarColor';
 
 const SESSIONS_KEY = 'chengyujielong_sessions';
 
@@ -43,7 +43,7 @@ export interface GameState {
 }
 
 export interface GameActions {
-    startNewGame: (mode: GameMode, config?: ChallengeConfig | LimitedTimeConfig) => void;
+    startNewGame: (mode: GameMode, config?: LimitedTimeConfig) => void;
     submitIdiom: (input: string) => { success: boolean; error?: string; errorType?: RecordType };
     giveUp: () => void;
     deleteSession: (sessionId: string) => void;
@@ -60,7 +60,7 @@ export interface GameActions {
 export function useGameState(): [GameState, GameActions] {
     const [sessions, setSessions] = useLocalStorageState<GameSession[]>(SESSIONS_KEY, []);
     const [currentSession, setCurrentSession] = useState<GameSession | null>(null);
-    const [remainingTime, setRemainingTime] = useState(0);
+    const [remainingTime] = useState(0);
     const [currentTurnStartTime, setCurrentTurnStartTime] = useState(Date.now());
     const [gameRemainingTime, setGameRemainingTime] = useState(0);
     const timerRef = useRef<number | null>(null);
@@ -78,34 +78,11 @@ export function useGameState(): [GameState, GameActions] {
         });
     }, [setSessions]);
 
-    const startTimer = useCallback((timeLimit: number) => {
-        if (timerRef.current) {
-            clearInterval(timerRef.current);
-        }
-        setRemainingTime(timeLimit);
-        timerRef.current = window.setInterval(() => {
-            setRemainingTime(prev => {
-                if (prev <= 1) {
-                    if (timerRef.current) {
-                        clearInterval(timerRef.current);
-                        timerRef.current = null;
-                    }
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-    }, []);
-
     const stopTimer = useCallback(() => {
         if (timerRef.current) {
             clearInterval(timerRef.current);
             timerRef.current = null;
         }
-    }, []);
-
-    const resetTimer = useCallback((timeLimit: number) => {
-        setRemainingTime(timeLimit);
     }, []);
 
     const startGameTimer = useCallback((gameTimeLimit: number) => {
@@ -142,45 +119,6 @@ export function useGameState(): [GameState, GameActions] {
     }, [stopTimer, stopGameTimer]);
 
     useEffect(() => {
-        if (currentSession && remainingTime === 0 && currentSession.timeLimit && currentSession.timeLimit > 0 && currentSession.isActive) {
-            const history = currentSession.messages
-                .filter(m => !m.isError)
-                .map(m => m.idiom);
-
-            const robotIdiom = idiomLib.pickNext(history);
-            if (robotIdiom) {
-                const now = Date.now();
-                const updatedSession = {
-                    ...currentSession,
-                    messages: [...currentSession.messages, {
-                        idiom: robotIdiom,
-                        isUser: false,
-                        timestamp: now,
-                        timeCost: 0
-                    }]
-                };
-                idiomLib.markUsed(robotIdiom);
-                setCurrentSession({
-                    ...updatedSession,
-                    isActive: false,
-                    endTime: now
-                });
-                saveCurrentSession({
-                    ...updatedSession,
-                    isActive: false,
-                    endTime: now
-                });
-            } else {
-                setCurrentSession({
-                    ...currentSession,
-                    isActive: false,
-                    endTime: Date.now()
-                });
-            }
-        }
-    }, [remainingTime, currentSession, saveCurrentSession]);
-
-    useEffect(() => {
         if (currentSession && gameRemainingTime === 0 && currentSession.gameTimeLimit && currentSession.gameTimeLimit > 0 && currentSession.isActive) {
             const now = Date.now();
             const updatedSession = {
@@ -195,7 +133,7 @@ export function useGameState(): [GameState, GameActions] {
         }
     }, [gameRemainingTime, currentSession, saveCurrentSession, stopGameTimer]);
 
-    const startNewGame = useCallback((mode: GameMode, config?: ChallengeConfig | LimitedTimeConfig) => {
+    const startNewGame = useCallback((mode: GameMode, config?: LimitedTimeConfig) => {
         idiomLib.reset();
 
         const firstIdiom = idiomLib.pickNext([]);
@@ -212,18 +150,6 @@ export function useGameState(): [GameState, GameActions] {
             score: 0,
             isActive: true
         };
-
-        if (mode === GameMode.Challenge && config) {
-            const challengeConfig = config as ChallengeConfig;
-            session.challengeConfig = challengeConfig;
-            if (challengeConfig.lives > 0) {
-                session.lives = challengeConfig.lives;
-                session.maxLives = challengeConfig.lives;
-            }
-            if (challengeConfig.timeLimit > 0) {
-                session.timeLimit = challengeConfig.timeLimit;
-            }
-        }
 
         if (mode === GameMode.LimitedTime && config) {
             const limitedTimeConfig = config as LimitedTimeConfig;
@@ -243,12 +169,6 @@ export function useGameState(): [GameState, GameActions] {
         setCurrentTurnStartTime(now);
         saveCurrentSession(session);
 
-        if (session.timeLimit && session.timeLimit > 0) {
-            startTimer(session.timeLimit);
-        } else {
-            stopTimer();
-        }
-
         if (session.gameTimeLimit && session.gameTimeLimit > 0) {
             startGameTimer(session.gameTimeLimit);
         } else {
@@ -256,7 +176,7 @@ export function useGameState(): [GameState, GameActions] {
         }
 
         console.info('[useGameState] Started new game:', mode, config);
-    }, [saveCurrentSession, startTimer, stopTimer, startGameTimer, stopGameTimer]);
+    }, [saveCurrentSession, startGameTimer, stopGameTimer]);
 
     const submitIdiom = useCallback((input: string): { success: boolean; error?: string; errorType?: RecordType } => {
         if (!currentSession || !currentSession.isActive) {
@@ -293,32 +213,6 @@ export function useGameState(): [GameState, GameActions] {
                 ...currentSession,
                 messages: [...currentSession.messages, message]
             };
-
-            if (currentSession.mode === GameMode.Challenge) {
-                if (currentSession.lives !== undefined) {
-                    updatedSession.lives = currentSession.lives - 1;
-
-                    if (updatedSession.lives <= 0) {
-                        updatedSession.isActive = false;
-                        updatedSession.endTime = now;
-                        stopTimer();
-                        setCurrentSession(updatedSession);
-                        saveCurrentSession(updatedSession);
-                        return { success: false, error: `${errorMessage} 游戏结束！`, errorType: result };
-                    } else {
-                        setCurrentSession(updatedSession);
-                        saveCurrentSession(updatedSession);
-                        return { success: false, error: `${errorMessage} 剩余生命: ${updatedSession.lives}`, errorType: result };
-                    }
-                } else {
-                    updatedSession.isActive = false;
-                    updatedSession.endTime = now;
-                    stopTimer();
-                    setCurrentSession(updatedSession);
-                    saveCurrentSession(updatedSession);
-                    return { success: false, error: `${errorMessage} 游戏结束！`, errorType: result };
-                }
-            }
 
             setCurrentSession(updatedSession);
             saveCurrentSession(updatedSession);
@@ -362,15 +256,11 @@ export function useGameState(): [GameState, GameActions] {
         idiomLib.markUsed(input);
         setCurrentTurnStartTime(now);
 
-        if (updatedSession.timeLimit && updatedSession.timeLimit > 0) {
-            resetTimer(updatedSession.timeLimit);
-        }
-
         setCurrentSession(updatedSession);
         saveCurrentSession(updatedSession);
 
         return { success: true };
-    }, [currentSession, currentTurnStartTime, saveCurrentSession, stopTimer, resetTimer]);
+    }, [currentSession, currentTurnStartTime, saveCurrentSession]);
 
     const triggerComputerTurn = useCallback((callback?: () => void) => {
         setTimeout(() => {
@@ -414,16 +304,12 @@ export function useGameState(): [GameState, GameActions] {
                 idiomLib.markUsed(nextIdiom);
                 setCurrentTurnStartTime(now);
 
-                if (updatedSession.timeLimit && updatedSession.timeLimit > 0) {
-                    resetTimer(updatedSession.timeLimit);
-                }
-
                 saveCurrentSession(updatedSession);
                 if (callback) callback();
                 return updatedSession;
             });
         }, 500);
-    }, [currentTurnStartTime, saveCurrentSession, stopTimer, resetTimer]);
+    }, [currentTurnStartTime, saveCurrentSession]);
 
     const giveUp = useCallback(() => {
         if (!currentSession || !currentSession.isActive) {
@@ -610,7 +496,7 @@ export function useGameState(): [GameState, GameActions] {
         removePlayer,
         updatePlayerName,
         getCurrentPlayer,
-        startMultiplayerGame
+        startMultiplayerGame,
     };
 
     return [state, actions];

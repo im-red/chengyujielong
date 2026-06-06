@@ -1,4 +1,4 @@
-import { Player } from '../types';
+import { Player } from '../models';
 import './PlayerAvatar.css';
 
 interface PlayerAvatarProps {

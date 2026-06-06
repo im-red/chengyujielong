@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import useLocalStorageState from './useLocalStorageState';
-import { PinyinPatch } from '../types';
+import { PinyinPatch } from '../models';
 
 const PINYIN_PATCHES_KEY = 'chengyujielong:pinyin-patches';
 

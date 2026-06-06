@@ -1,10 +1,8 @@
 import { useRef, KeyboardEvent, ChangeEvent, MouseEvent, TouchEvent } from 'react';
-import { GameMode } from '../types';
 
 interface IdiomInputProps {
     input: string;
     isSubmitting: boolean;
-    mode: GameMode;
     onInputChange: (value: string) => void;
     onSubmit: () => void;
     onGiveUp?: () => void;
@@ -14,7 +12,6 @@ interface IdiomInputProps {
 function IdiomInput({
     input,
     isSubmitting,
-    mode,
     onInputChange,
     onSubmit,
     onGiveUp,
