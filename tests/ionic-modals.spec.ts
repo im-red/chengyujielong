@@ -142,11 +142,8 @@ test.describe('Modal Interactions with Ionic', () => {
         const count = await candidateItems.count();
         expect(count).toBeGreaterThan(0);
 
-        const candidates: string[] = [];
-        for (let i = 0; i < count; i++) {
-            const text = await candidateItems.nth(i).textContent();
-            if (text) candidates.push(text.replace('★', '').trim());
-        }
+        const rawTexts = await candidateItems.allTextContents();
+        const candidates = rawTexts.map(t => t.replace('★', '').trim()).filter(t => t);
 
         const isSorted = await page.evaluate((cands) => {
             const lib = (window as any).idiomLib;

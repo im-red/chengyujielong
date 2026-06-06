@@ -1,6 +1,7 @@
 .history-detail-stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
   gap: 0.5rem;
   padding: 1rem;
   background: white;

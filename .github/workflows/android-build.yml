@@ -87,3 +87,4 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           files: android/app/build/outputs/apk/release/${{ github.event.repository.name }}-*.apk
+          generate_release_notes: true
