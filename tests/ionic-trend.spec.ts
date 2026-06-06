@@ -112,4 +112,138 @@ test.describe('TrendPage Features with Ionic', () => {
         expect(await gameCount.textContent()).toBe('1');
         await expect(historyCards).toHaveCount(1);
     });
+
+    test('TC-IONIC-TREND-004: Toggles between session and day views correctly', async ({ page }) => {
+        test.setTimeout(30000);
+        
+        // Clear history first
+        const clearBtn = page.locator('.btn-clear-history');
+        if (await clearBtn.isVisible()) {
+            await clearBtn.click();
+            await page.locator('button.alert-button').filter({ hasText: '确定' }).click();
+            await page.waitForTimeout(500);
+        }
+
+        // Generate mock data for the test directly into localStorage to simulate different days
+        await page.evaluate(() => {
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            const mockSessions = [
+                {
+                    id: '1',
+                    mode: 'limitedTime',
+                    startTime: yesterday.getTime(),
+                    endTime: yesterday.getTime() + 60000,
+                    score: 10,
+                    messages: [],
+                    limitedTimeConfig: { gameTimeLimit: 60, singleTurnTimeLimit: 15 }
+                },
+                {
+                    id: '2',
+                    mode: 'limitedTime',
+                    startTime: yesterday.getTime() + 100000,
+                    endTime: yesterday.getTime() + 160000,
+                    score: 20,
+                    messages: [],
+                    limitedTimeConfig: { gameTimeLimit: 60, singleTurnTimeLimit: 15 }
+                },
+                {
+                    id: '3',
+                    mode: 'limitedTime',
+                    startTime: today.getTime(),
+                    endTime: today.getTime() + 60000,
+                    score: 30,
+                    messages: [],
+                    limitedTimeConfig: { gameTimeLimit: 60, singleTurnTimeLimit: 15 }
+                }
+            ];
+            
+            // Set the correct state structure that useLocalStorageState expects
+            localStorage.setItem('chengyujielong_sessions', JSON.stringify(mockSessions));
+        });
+        
+        // Reload page to load mock data
+        await page.goto('/');
+        await page.waitForSelector('ion-router-outlet', { state: 'attached' });
+        
+        // Navigate to TrendPage
+        await navigateViaMenu(page, '成绩趋势');
+        
+        // Wait for TrendPage to be fully loaded
+        const title = page.locator('ion-router-outlet > .ion-page:not(.ion-page-hidden) ion-title').first();
+        expect(await title.textContent()).toContain('成绩趋势');
+        
+        // Ensure no empty state is shown
+        const emptyState = page.locator('.trend-empty');
+        await expect(emptyState).toBeHidden();
+        
+        // The mock data only has 1 config (60s limit), so filter buttons might not show up if there's only 1 config.
+        // Wait for stats panel to be visible to ensure data is rendered
+        const statsPanel = page.locator('.trend-stats-panel');
+        await expect(statsPanel).toBeVisible({ timeout: 5000 });
+
+        // Check segment control is visible
+        const sessionSegmentBtn = page.locator('ion-segment-button[value="session"]');
+        const daySegmentBtn = page.locator('ion-segment-button[value="day"]');
+        
+        await expect(sessionSegmentBtn).toBeVisible();
+        await expect(daySegmentBtn).toBeVisible();
+        
+        // --- Verify Default (Session) View ---
+        
+        // 1. History should have 3 items
+        const historyCards = page.locator('.trend-history-card');
+        await expect(historyCards).toHaveCount(3);
+        
+        // 2. Verify Chart Data in Session View (should have 3 points: 10, 20, 30)
+        const sessionChartData = await page.evaluate(() => {
+            const chart = (window as any).__trendChartInstance;
+            if (chart) {
+                return {
+                    labels: chart.data.labels,
+                    data: chart.data.datasets[0].data
+                };
+            }
+            return null;
+        });
+        
+        expect(sessionChartData).not.toBeNull();
+        expect(sessionChartData?.labels.length).toBe(3);
+        expect(sessionChartData?.data).toEqual([10, 20, 30]);
+
+        // --- Switch to Day View ---
+        await daySegmentBtn.click();
+        
+        // Wait for the chart to update (animation)
+        await page.waitForTimeout(500);
+        
+        // 1. History list should STILL have 3 items, it should not change
+        await expect(historyCards).toHaveCount(3);
+        
+        // 2. Verify Chart Data in Day View 
+        // (Yesterday avg = (10+20)/2 = 15; Today avg = 30/1 = 30) -> Should have 2 points: 15, 30
+        const dayChartData = await page.evaluate(() => {
+            const chart = (window as any).__trendChartInstance;
+            if (chart) {
+                return {
+                    labels: chart.data.labels,
+                    data: chart.data.datasets[0].data
+                };
+            }
+            return null;
+        });
+        
+        expect(dayChartData).not.toBeNull();
+        expect(dayChartData?.labels.length).toBe(2);
+        expect(dayChartData?.data).toEqual([15, 30]);
+        
+        // --- Switch back to Session View ---
+        await sessionSegmentBtn.click();
+        await page.waitForTimeout(500);
+        
+        // History list should STILL have 3 items
+        await expect(historyCards).toHaveCount(3);
+    });
 });

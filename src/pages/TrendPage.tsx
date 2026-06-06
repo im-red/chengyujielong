@@ -7,6 +7,9 @@ import {
   IonButtons,
   IonBackButton,
   IonContent,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel,
 } from '@ionic/react';
 import {
   Chart as ChartJS,
@@ -101,6 +104,7 @@ function TrendChart({ sessions }: TrendChartProps) {
   }, [sessions]);
 
   const [selectedConfigIndex, setSelectedConfigIndex] = useState(0);
+  const [viewMode, setViewMode] = useState<'session' | 'day'>('session');
   const selectedConfig = configs[selectedConfigIndex]?.config;
 
   const filteredSessions = useMemo(() => {
@@ -114,9 +118,40 @@ function TrendChart({ sessions }: TrendChartProps) {
     }).sort((a, b) => a.startTime - b.startTime);
   }, [sessions, selectedConfig]);
 
+  const dailyStats = useMemo(() => {
+    const dayMap = new Map<string, { total: number; count: number }>();
+    filteredSessions.forEach(session => {
+      const date = new Date(session.startTime);
+      const dayStr = date.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' });
+      if (!dayMap.has(dayStr)) {
+        dayMap.set(dayStr, { total: 0, count: 0 });
+      }
+      const stat = dayMap.get(dayStr)!;
+      stat.total += session.score;
+      stat.count += 1;
+    });
+
+    const days: string[] = [];
+    const averages: number[] = [];
+    dayMap.forEach((stat, day) => {
+      days.push(day);
+      averages.push(Math.round(stat.total / stat.count));
+    });
+
+    return { days, averages };
+  }, [filteredSessions]);
+
   const chartData = useMemo(() => {
-    const labels = filteredSessions.map((_, i) => `#${i + 1}`);
-    const scores = filteredSessions.map(s => s.score);
+    let labels: string[];
+    let data: number[];
+
+    if (viewMode === 'session') {
+      labels = filteredSessions.map((_, i) => `#${i + 1}`);
+      data = filteredSessions.map(s => s.score);
+    } else {
+      labels = dailyStats.days;
+      data = dailyStats.averages;
+    }
 
     // Get primary color from document or use fallback
     const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--ion-color-primary').trim() || '#3880ff';
@@ -125,8 +160,8 @@ function TrendChart({ sessions }: TrendChartProps) {
       labels,
       datasets: [
         {
-          label: '得分',
-          data: scores,
+          label: viewMode === 'session' ? '得分' : '平均分',
+          data,
           fill: true,
           borderColor: primaryColor,
           backgroundColor: 'rgba(56, 128, 255, 0.1)',
@@ -141,7 +176,7 @@ function TrendChart({ sessions }: TrendChartProps) {
         },
       ],
     };
-  }, [filteredSessions]);
+  }, [filteredSessions, viewMode, dailyStats]);
 
   const chartOptions = {
     responsive: true,
@@ -159,10 +194,10 @@ function TrendChart({ sessions }: TrendChartProps) {
         displayColors: false,
         callbacks: {
           title: (tooltipItems: any[]) => {
-            return `#${tooltipItems[0].dataIndex + 1}`;
+            return viewMode === 'session' ? `#${tooltipItems[0].dataIndex + 1}` : tooltipItems[0].label;
           },
           label: (context: any) => {
-            return `得分: ${context.parsed.y}`;
+            return viewMode === 'session' ? `得分: ${context.parsed.y}` : `平均分: ${context.parsed.y}`;
           }
         }
       }
@@ -187,6 +222,19 @@ function TrendChart({ sessions }: TrendChartProps) {
     const min = Math.min(...scores);
     return { count, average, max, min };
   }, [filteredSessions]);
+
+  // Store reference to the chart instance to allow testing to access it
+  const chartRef = React.useRef<any>(null);
+
+  React.useEffect(() => {
+    // Expose chart instance to window for testing
+    if (chartRef.current) {
+      (window as any).__trendChartInstance = chartRef.current;
+    }
+    return () => {
+      (window as any).__trendChartInstance = null;
+    };
+  }, [chartData]);
 
   const dayBackgroundPlugin = useMemo(() => {
     return {
@@ -272,8 +320,21 @@ function TrendChart({ sessions }: TrendChartProps) {
             </div>
           </div>
 
+          <div className="trend-view-segment">
+            <IonSegment value={viewMode} onIonChange={e => {
+              setViewMode(e.detail.value as 'session' | 'day');
+            }}>
+              <IonSegmentButton value="session">
+                <IonLabel>按局</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="day">
+                <IonLabel>按天</IonLabel>
+              </IonSegmentButton>
+            </IonSegment>
+          </div>
+
           <div className="trend-chart-container">
-            <Line data={chartData} options={chartOptions} plugins={[dayBackgroundPlugin]} />
+            <Line ref={chartRef} data={chartData} options={chartOptions} plugins={viewMode === 'session' ? [dayBackgroundPlugin] : []} />
           </div>
 
           <div className="trend-history-section">
