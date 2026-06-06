@@ -188,6 +188,48 @@ function TrendChart({ sessions }: TrendChartProps) {
     return { count, average, max, min };
   }, [filteredSessions]);
 
+  const dayBackgroundPlugin = useMemo(() => {
+    return {
+      id: 'dayBackground',
+      beforeDraw: (chart: any) => {
+        const { ctx, chartArea } = chart;
+        if (!chartArea) return;
+        const { top, bottom, left, right } = chartArea;
+
+        const meta = chart.getDatasetMeta(0);
+        if (!meta || !meta.data || meta.data.length === 0) return;
+
+        const dataPoints = meta.data;
+
+        const colors: string[] = [];
+        let currentDay = '';
+        let colorToggle = false;
+        filteredSessions.forEach(session => {
+          const date = new Date(session.startTime);
+          const dayStr = date.toLocaleDateString('zh-CN');
+          if (dayStr !== currentDay) {
+            currentDay = dayStr;
+            colorToggle = !colorToggle;
+          }
+          // Alternate between transparent and a light grey for days
+          colors.push(colorToggle ? 'rgba(0, 0, 0, 0)' : 'rgba(0, 0, 0, 0.1)');
+        });
+
+        ctx.save();
+        for (let i = 0; i < dataPoints.length; i++) {
+          if (i >= colors.length) break;
+          const xPos = dataPoints[i].x;
+          const startX = i === 0 ? left : (dataPoints[i - 1].x + xPos) / 2;
+          const endX = i === dataPoints.length - 1 ? right : (xPos + dataPoints[i + 1].x) / 2;
+
+          ctx.fillStyle = colors[i];
+          ctx.fillRect(startX, top, endX - startX, bottom - top);
+        }
+        ctx.restore();
+      }
+    };
+  }, [filteredSessions]);
+
   return (
     <div>
       {configs.length > 1 && (
@@ -231,7 +273,7 @@ function TrendChart({ sessions }: TrendChartProps) {
           </div>
 
           <div className="trend-chart-container">
-            <Line data={chartData} options={chartOptions} />
+            <Line data={chartData} options={chartOptions} plugins={[dayBackgroundPlugin]} />
           </div>
 
           <div className="trend-history-section">
