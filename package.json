@@ -1,6 +1,6 @@
 {
   "name": "chengyujielong",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "A Capacitor Chinese idiom chain game application",
   "main": "index.js",
   "scripts": {
