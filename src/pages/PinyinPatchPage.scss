@@ -29,7 +29,7 @@
 .patch-card {
   padding: 0.75rem;
   margin-bottom: 0.5rem;
-  background: white;
+  background: var(--app-card-color);
   border-radius: 8px;
   border: 1px solid var(--ion-color-step-150);
 }
@@ -76,3 +76,4 @@
   color: var(--ion-color-step-400);
   margin-top: 0.25rem;
 }
+

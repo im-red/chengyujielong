@@ -9,10 +9,22 @@
   --ion-color-danger: #eb445a;
   --ion-color-danger-rgb: 235, 68, 90;
 
-  --ion-background-color: #f4f5f8;
-  --ion-text-color: #121212;
-  --ion-color-step-50: #f4f5f8;
-  --ion-color-step-150: #e2e8f0;
-  --ion-color-step-400: #9ca3af;
-  --ion-color-medium: #666666;
+  /* Semantic variables for dark mode (defaults to Ionic's dark palette values) */
+  --app-bg-color: #121212;
+  --app-card-color: #1e1e1e;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --ion-background-color: #ffffff;
+    --ion-text-color: #121212;
+    --ion-color-step-50: #f4f5f8;
+    --ion-color-step-150: #e2e8f0;
+    --ion-color-step-400: #9ca3af;
+    --ion-color-medium: #666666;
+
+    /* Semantic variables for light mode */
+    --app-bg-color: #f4f5f8;
+    --app-card-color: #ffffff;
+  }
 }

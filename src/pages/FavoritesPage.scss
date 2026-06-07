@@ -28,7 +28,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: white;
+  background: var(--app-card-color);
   border-radius: 8px;
   cursor: pointer;
   border: 1px solid var(--ion-color-step-150);
@@ -65,7 +65,7 @@
   align-items: center;
   padding: 0.5rem 0.75rem;
   margin-top: 0.25rem;
-  background: white;
+  background: var(--app-card-color);
   border-radius: 8px;
   cursor: pointer;
   border: 1px solid var(--ion-color-step-150);
@@ -97,3 +97,4 @@
   font-size: 1.2rem;
   cursor: pointer;
 }
+

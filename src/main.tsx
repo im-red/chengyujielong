@@ -13,6 +13,7 @@ import '@ionic/react/css/text-alignment.css';
 import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
+import '@ionic/react/css/palettes/dark.system.css';
 
 import App from './App';
 import { idiomLib } from './util/idiomLib';
@@ -31,8 +32,11 @@ async function initCapacitor() {
 
   try {
     if (Capacitor.isPluginAvailable('StatusBar')) {
-      await StatusBar.setStyle({ style: Style.Light });
-      await StatusBar.setBackgroundColor({ color: '#ffffff' });
+      // For proper dark mode support, let the system handle the status bar color,
+      // or set it based on prefers-color-scheme.
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      await StatusBar.setStyle({ style: prefersDark ? Style.Dark : Style.Light });
+      await StatusBar.setBackgroundColor({ color: prefersDark ? '#121212' : '#ffffff' });
     }
     console.log('Capacitor initialized successfully');
   } catch (error) {

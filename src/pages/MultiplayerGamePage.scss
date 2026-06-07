@@ -8,7 +8,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 1rem;
-  background: white;
+  background: var(--app-card-color);
   border-bottom: 1px solid var(--ion-color-step-150);
   flex-shrink: 0;
 }
@@ -77,3 +77,4 @@
   font-weight: 500;
   font-size: 0.9rem;
 }
+

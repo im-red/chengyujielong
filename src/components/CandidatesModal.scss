@@ -24,7 +24,7 @@
 }
 
 .candidates-stat-card-inactive {
-    background: #f0f0f0;
+    background: var(--ion-color-step-150);
     color: var(--ion-text-color);
 }
 
@@ -64,7 +64,7 @@
 }
 
 .candidate-item-normal {
-    background: #f0f0f0;
+    background: var(--ion-color-step-150);
     border: 1px solid transparent;
 }
 
